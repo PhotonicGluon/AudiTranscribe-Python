@@ -39,16 +39,4 @@ def wav_to_samples(file_path: str, offset: float = 0., duration: Optional[float]
             Sample rate of the WAV file.
     """
 
-    # # return read(file_path, mmap=mmap)
-    #
-    # # Get the samples and sample rate
-    # sample_rate, samples = read(file_path, mmap=mmap)
-    #
-    # # Keep only one channel of the samples
-    # if len(samples.shape) > 1:  # Stereo
-    #     samples = samples[:, 0]  # Convert to mono
-    #
-    # # Return the values
-    # return sample_rate, samples
-
     return librosa.load(file_path, sr=None, offset=offset, duration=duration)

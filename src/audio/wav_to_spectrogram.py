@@ -17,6 +17,7 @@ import librosa
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
 
 
 # FUNCTIONS
@@ -74,7 +75,7 @@ def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int
 
 
 def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, times: np.ndarray,
-                             px_per_second: int = 64, img_height=720, dpi: float = 100.) -> Image.Image:
+                             px_per_second: int = 50, img_height=720, dpi: float = 100.) -> Image.Image:
     """
     Generates a spectrogram image.
 
@@ -101,7 +102,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
             (Default: 100.0)
 
     Returns:
-
+        spectrogram_image
     """
 
     # Get the length of the audio
@@ -114,15 +115,15 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
     # Plot the spectrogram
     ax.pcolormesh(times, frequencies, spectrogram, shading="gouraud")
-    ax.set_axis_off()
-    # ax.colorbar(format="%+2.0f dB")
-    # ax.set_xlabel("Time")
-    # ax.set_ylabel("Hz")
-    # ax.set_title("Spectrogram")
+    ax.set_axis_off()  # Remove axis labels
 
     # Save the spectrogram to the image buffer
-    img_buf = io.BytesIO()
-    fig.savefig(img_buf, bbox_inches="tight", pad_inches=0)  # No whitespace
+    # Todo: the `total` is an estimate and is not correctly calculated; the actual value is lower than this. How to
+    #       fix this?
+    # Todo: Also for long audio files this process takes a long time, regardless what resolution the image should be
+    #       in. How to reduce the time taken?
+    with tqdm.wrapattr(io.BytesIO(), "write", total=int(audio_length) * px_per_second * img_height) as img_buf:
+        fig.savefig(img_buf, bbox_inches="tight", pad_inches=0)  # No whitespace
 
     # Open the image buffer in Pillow
     img = Image.open(img_buf)
@@ -131,17 +132,64 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
     return img
 
 
+# def generate_spectrogram_img_small(spectrogram: np.ndarray, frequencies: np.ndarray, times: np.ndarray,
+#                                    reduction_factor: float = 0.2, px_per_second: int = 50, img_height=720,
+#                                    dpi: float = 100.):
+#     """
+#     Generates a spectrogram image.
+#
+#     Args:
+#         spectrogram:
+#              Matrix of short-term Fourier transform coefficients, i.e. the spectrogram data.
+#
+#         frequencies:
+#             Array of sample frequencies.
+#
+#         times:
+#             Array of sample times.
+#
+#         reduction_factor:
+#             Factor to reduce the dimensions of the image by.
+#
+#         px_per_second:
+#             Number of pixels of the spectrogram dedicated to each second of audio. This is the size for the FULL image.
+#             (Default: 64)
+#
+#         img_height:
+#             Height of the image, in pixels. This is the size of the FULL image.
+#             (Default: 720)
+#
+#         dpi:
+#             The resolution of the figure in dots-per-inch.
+#             (Default: 100.0)
+#
+#     Returns:
+#         spectrogram_image
+#     """
+#
+#     # Generate the smaller image
+#     img_small = generate_spectrogram_img(spectrogram, frequencies, times,
+#                                          px_per_second=int(px_per_second * reduction_factor),
+#                                          img_height=int(img_height * reduction_factor), dpi=dpi)
+#
+#     # Now upscale the smaller image to match the original size
+#     img_small = img_small.resize((img_small.width / reduction_factor, img_small.height / reduction_factor))
+#
+#     # Return the image
+#     return img_small
+
+
 # TESTING CODE
 if __name__ == "__main__":
     # Imports
     from src.io import wav_to_samples
 
     # Read the testing WAV file
-    samples_, sample_rate_ = wav_to_samples("../../testing_files/ConstantTones.wav")
+    samples_, sample_rate_ = wav_to_samples("../../Testing Audio Files/Fly.wav")
 
     # Convert to spectrogram
     spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
 
     # Display spectrogram
     image = generate_spectrogram_img(spec, freq, time)
-    image.show("Spectrogram Image")
+    image.show(title="Spectrogram Image")
