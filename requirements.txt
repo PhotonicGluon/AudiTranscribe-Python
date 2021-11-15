@@ -1,1 +1,6 @@
 kivy[base]~=2.0.0
+librosa~=0.8.1
+matplotlib~=3.4.3
+numpy~=1.20.3
+Pillow~=8.4.0
+scipy~=1.7.2

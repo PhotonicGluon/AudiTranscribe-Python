@@ -115,5 +115,7 @@ dmypy.json
 
 # Others
 .idea
+PongGame
+testing_files
 
 .DS_Store
