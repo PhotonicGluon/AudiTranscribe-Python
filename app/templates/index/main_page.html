@@ -1,0 +1,35 @@
+{% extends "base/base.html" %}
+
+{% block title %}
+    AudiTranscribe
+{% endblock %}
+
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/index/css/main_page.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <nav id="nav">
+            <div class="row">
+                <img src="{{ url_for('static', filename='resources/base/img/favicon.png') }}" alt="The Challenge's Logo"
+                     class="logo">
+                <a class="nav-icon" id="nav-icon"><i class="ion-navicon-round"></i></a>
+            </div>
+        </nav>
+
+        <div class="hero-box">
+            <h1>AudiTranscribe</h1>
+            <p class="introduction">
+                A music transcription application.
+                <br><br>
+                <em>Ready to begin?</em>
+                <br>
+                <button class="upload-button" id="upload-button" disabled><strong>Upload a File</strong></button>
+                <br><br>
+                <em>Scroll down to read more about AudiTranscribe.</em>
+            </p>
+        </div>
+    </div>
+{% endblock %}

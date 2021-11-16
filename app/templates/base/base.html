@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+
+<head>
+    <!-- Set meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Define title block -->
+    <title>{% block title %}AudiTranscribe{% endblock %}</title>
+
+    <!-- Define The Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='resources/base/img/favicon.png') }}">
+
+    <!-- Include vendors' CSS files -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendors/css/normalize.css') }}">
+
+    <!-- Include My CSS files -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/base/css/base.css') }}">
+    {% block stylesheets %}{% endblock %}
+
+    <!-- Load Header Scripts -->
+    <script type="text/javascript" src="{{ url_for('static', filename='resources/base/js/base.js') }}"></script>
+    {% block header_scripts %}{% endblock %}
+</head>
+
+<body>
+<!-- Check if JavaScript is enabled -->
+<noscript>
+    <div class="alert">
+        <span class="alert-box-close-button" id="alert-temp">&times;</span>
+        JavaScript is needed to run AudiTranscribe. Please enable it.
+    </div>
+</noscript>
+
+<!-- Main Content -->
+{% block content %}{% endblock %}
+
+<!-- Scripts -->
+{% block body_scripts %}{% endblock %}
+
+<!-- Display any alerts -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <script>
+                console.log("{{ message }}");
+                createAlert("{{ message }}", document.body);  // Will show an alert on the page
+            </script>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+Colour Palette:
+- Main colour:          #209bed
+- Secondary colour:     #52489c
+- Tertiary colour:      #b1ede8
+- Error colour:         #ff6978
+- White colour:         #fffcf9

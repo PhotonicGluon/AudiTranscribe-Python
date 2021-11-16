@@ -1,0 +1,213 @@
+/* MAIN STYLING */
+/* Basic Styling */
+html {
+    text-rendering: optimizeLegibility;
+    font-size: 20px; /* This is the global font size */
+    font-family: "Arial", sans-serif;
+    scroll-behavior: smooth;
+}
+
+li {
+    margin-top: 4px;
+}
+
+code {
+    padding: 1px 5px;
+    background: #e4e6e8;
+    border-radius: 4px;
+}
+
+/* Reusable Components */
+.row {
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 2px 2px #efefef;
+    z-index: 9999;
+}
+
+/* Headings' Styling */
+h1, h2 {
+    text-align: center;
+}
+
+h1 {
+    margin-top: 10px;
+}
+
+h2 {
+    margin-top: 8px;
+}
+
+/* Header Styling */
+.header {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../img/header_background.png);
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    background-attachment: fixed;
+}
+
+.main-nav {
+    margin-top: 55px;
+    float: right;
+    list-style: none;
+}
+
+.main-nav li {
+    margin-left: 40px;
+    display: inline-block;
+}
+
+.main-nav li a:link, .main-nav li a:visited {
+    padding: 8px 0;
+    color: #fff;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 90%;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.2s;
+}
+
+.main-nav li a:hover, .main-nav li a:active {
+    border-bottom: 2px solid #31acfe;
+}
+
+.nav-icon {
+    color: #fff;
+    font-size: 24pt;
+    float: right;
+    margin-top: 40px;
+    cursor: pointer;
+    display: none;
+}
+
+.logo {
+    margin-top: 30px;
+    height: 50px;
+    width: auto;
+    float: left;
+}
+
+.sticky .main-nav {
+    margin-top: 18px;
+}
+
+.sticky .nav-icon {
+    color: #555;
+    margin: 20px auto;
+}
+
+.sticky .main-nav li a:link,
+.sticky .main-nav li a:visited {
+    padding: 16px 0;
+    color: #555;
+}
+
+.sticky .logo {
+    height: 50px;
+    width: auto;
+    margin: 10px auto;
+}
+
+.hero-box {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    transform: translate(0%, -50%);
+    text-align: center;
+    color: white;
+}
+
+.upload-button {
+    border: 0;
+    width: 300px;
+    height: 50px;
+    font-size: 24px;
+    border-radius: 5px;
+    color: white;
+}
+
+.upload-button:enabled {
+    background-color: #209bed;
+}
+
+.upload-button:disabled {
+    background-color: #999;
+}
+
+.error-text {
+    color: #ff6978;
+}
+
+/* Main Page's Styling */
+.introduction {
+    text-align: center;
+}
+
+.information {
+    text-align: justify;
+}
+
+/* Footer's Styling */
+footer {
+    padding: 10px 0 10px 0;
+    margin-top: 10px;
+    text-align: center;
+    background-color: #209bed;
+    color: white;
+}
+
+footer a {
+    color: white;
+}
+
+/* QUERIES */
+/* Styling for screens that are smaller than the maximum width*/
+@media screen and (max-width: 1080px) {
+    .row, .introduction, #error-text {
+        width: 90%;
+        margin: 0 auto;
+    }
+}
+
+/* Styling for screens that will mess up the navigation */
+@media screen and (max-width: 900px) {
+    .main-nav {
+        display: none;
+    }
+
+    .nav-icon {
+        display: inline-block;
+    }
+
+    .main-nav {
+        float: left;
+        margin-top: 40px;
+        /*margin-left: 25px;*/ /* Todo: see if this is needed or not */
+    }
+
+    .main-nav li {
+        margin-left: 35px;
+        display: block;
+    }
+
+    .main-nav li a:link, .main-nav li a:visited {
+        display: block;
+        border: 0;
+        padding: 10px 0;
+        font-size: 80%;
+    }
+
+    .sticky .main-nav {
+        margin-top: 14px;
+        margin-bottom: 10px;
+    }
+}
