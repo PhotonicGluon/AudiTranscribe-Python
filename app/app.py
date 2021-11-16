@@ -15,10 +15,11 @@ import os
 from uuid import uuid4
 
 from flask import Flask, render_template, request, url_for
+from src.io import SUPPORTED_AUDIO_EXTENSIONS
 
 # CONSTANTS
-MAX_AUDIO_FILE_SIZE = {"Value": 10 * 1024 ** 2, "Name": "10 MiB"}
-ACCEPTED_FILE_TYPES = ["MP3", "WAV"]
+MAX_AUDIO_FILE_SIZE = {"Value": 10 ** 7, "Name": "10 MB"}
+ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()]
 
 # FLASK SETUP
 # Define basic things
