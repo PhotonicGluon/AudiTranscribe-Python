@@ -1,3 +1,12 @@
+/* MAIN STYLING */
+/* Basic Styling */
+html {
+    text-rendering: optimizeLegibility;
+    font-size: 20px; /* This is the global font size */
+    font-family: "Arial", sans-serif;
+    scroll-behavior: smooth;
+}
+
 /* CLASS-BASED STYLING */
 /* Alert Styling */
 .alert {

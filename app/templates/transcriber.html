@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+    AudiTranscribe - {{ file_name }}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/css/transcriber.css') }}">
+{% endblock %}
+
+{% block header_scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="overlay">
+        <div class="progress-area">
+            <span>Processing <code>{{ file_name }}</code></span>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    <script src="{{ url_for('static', filename='resources/js/transcriber.js') }}"></script>
+{% endblock %}

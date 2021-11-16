@@ -11,12 +11,6 @@ li {
     margin-top: 4px;
 }
 
-code {
-    padding: 1px 5px;
-    background: #e4e6e8;
-    border-radius: 4px;
-}
-
 /* Reusable Components */
 .row {
     max-width: 1080px;

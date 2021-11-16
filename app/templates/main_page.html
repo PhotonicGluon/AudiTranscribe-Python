@@ -1,11 +1,11 @@
-{% extends "base/base.html" %}
+{% extends "base.html" %}
 
 {% block title %}
     AudiTranscribe
 {% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/index/css/main_page.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/css/main_page.css') }}">
 {% endblock %}
 
 {% block header_scripts %}
@@ -19,7 +19,7 @@
     <div class="header">
         <nav id="nav">
             <div class="row">
-                <img src="{{ url_for('static', filename='resources/base/img/favicon.png') }}" alt="The Challenge's Logo"
+                <img src="{{ url_for('static', filename='resources/img/favicon.png') }}" alt="The Challenge's Logo"
                      class="logo">
                 <a class="nav-icon" id="nav-icon"><i class="ion-navicon-round"></i></a>
             </div>
@@ -44,5 +44,5 @@
 {% endblock %}
 
 {% block body_scripts %}
-    <script src="{{ url_for('static', filename='resources/index/js/main_page.js') }}"></script>
+    <script src="{{ url_for('static', filename='resources/js/main_page.js') }}"></script>
 {% endblock %}

@@ -13,4 +13,4 @@ Description: Main python program.
 from app.app import app
 
 # MAIN CODE
-app.run()
+app.run(threaded=True)

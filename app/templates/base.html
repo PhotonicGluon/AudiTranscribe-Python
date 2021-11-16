@@ -10,18 +10,18 @@
     <title>{% block title %}AudiTranscribe{% endblock %}</title>
 
     <!-- Define The Favicon -->
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='resources/base/img/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='resources/img/favicon.png') }}">
 
     <!-- Include vendors' CSS files -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendors/css/normalize.css') }}">
 
     <!-- Include My CSS files -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/base/css/base.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/css/base.css') }}">
     {% block stylesheets %}{% endblock %}
 
     <!-- Load Header Scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='resources/base/js/base.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='resources/js/base.js') }}"></script>
     {% block header_scripts %}{% endblock %}
 </head>
 
@@ -41,7 +41,7 @@
 {% block body_scripts %}{% endblock %}
 
 <!-- Display any alerts -->
-{% with messages = get_flashed_messages() %}
+{% with messages = get_flashed_messages(category_filter=["msg"]) %}
     {% if messages %}
         {% for message in messages %}
             <script>
