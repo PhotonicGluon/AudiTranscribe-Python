@@ -10,7 +10,7 @@ Description: Main python program.
 """
 
 # IMPORTS
-from app.app import app
+from app import app
 
 # MAIN CODE
 app.run(threaded=True)

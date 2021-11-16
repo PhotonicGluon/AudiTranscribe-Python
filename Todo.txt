@@ -1,2 +1,3 @@
 Todo:
-    - Add conversion from mp3 to wav files
+    - Add progress bar to the transcription page
+    - Add transcription page core features

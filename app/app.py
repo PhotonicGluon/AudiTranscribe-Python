@@ -18,8 +18,9 @@ from uuid import uuid4
 from flask import Flask, render_template, request, redirect, url_for, flash
 from yaml import dump, load, Loader
 
-from src.audio import wav_samples_to_spectrogram, generate_spectrogram_img, estimate_bpm
+from src.audio import wav_samples_to_spectrogram, estimate_bpm
 from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
+from src.visuals import generate_spectrogram_img
 
 # CONSTANTS
 MAX_AUDIO_FILE_SIZE = {"Value": 10 ** 7, "Name": "10 MB"}
