@@ -182,7 +182,7 @@ if __name__ == "__main__":
     from src.io import wav_to_samples
 
     # Read the testing WAV file
-    samples_, sample_rate_ = wav_to_samples("../../Testing Audio Files/Fly.wav")
+    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Fly.wav")
 
     # Convert to spectrogram
     spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
