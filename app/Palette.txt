@@ -4,3 +4,4 @@ Colour Palette:
 - Tertiary colour:      #b1ede8
 - Error colour:         #ff6978
 - White colour:         #fffcf9
+- Green colour:         #28b062

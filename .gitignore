@@ -116,6 +116,7 @@ dmypy.json
 # Others
 .idea
 flask_session
+MediaFiles
 Testing Files
 
 .DS_Store

@@ -4,9 +4,15 @@
     AudiTranscribe
 {% endblock %}
 
-
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/index/css/main_page.css') }}">
+{% endblock %}
+
+{% block header_scripts %}
+    <script>
+        const MAX_AUDIO_FILE_SIZE =  {{ max_audio_file_size|safe }};
+        const ACCEPTED_FILE_TYPES = {{ accepted_file_types|safe }};
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -26,10 +32,17 @@
                 <br><br>
                 <em>Ready to begin?</em>
                 <br>
-                <button class="upload-button" id="upload-button" disabled><strong>Upload a File</strong></button>
+                <label for="upload-file" id="upload-button" class="upload-button">Upload a File</label>
+                <input id="upload-file" type="file"/>
+                <br>
+                <span id="outcome-text"></span>
                 <br><br>
                 <em>Scroll down to read more about AudiTranscribe.</em>
             </p>
         </div>
     </div>
+{% endblock %}
+
+{% block body_scripts %}
+    <script src="{{ url_for('static', filename='resources/index/js/main_page.js') }}"></script>
 {% endblock %}
