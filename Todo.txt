@@ -1,3 +1,5 @@
 Todo:
     - Add transcription page core features
     - Allow easy configuration of spectrogram image size
+    - Allow playing of audio along with the spectrogram
+        - Delete the WAV file instead of the original audio for playing?

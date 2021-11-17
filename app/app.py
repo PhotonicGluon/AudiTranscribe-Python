@@ -24,8 +24,13 @@ from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
 from src.visuals import generate_spectrogram_img
 
 # CONSTANTS
+# File constants
 MAX_AUDIO_FILE_SIZE = {"Value": 10 ** 7, "Name": "10 MB"}
 ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()]
+
+# Spectrogram settings
+PX_PER_SECOND = 100  # Number of pixels of the spectrogram dedicated to each second of audio
+SPECTROGRAM_HEIGHT = 720  # Height of the spectrogram, in pixels
 
 # FLASK SETUP
 # Define basic things
@@ -83,7 +88,8 @@ def processing_file(file: str, uuid: str, progress: list):
     spectrogram, frequencies, times = wav_samples_to_spectrogram(sample_rate, samples)
 
     # Convert the spectrogram data into a spectrogram image
-    image = generate_spectrogram_img(spectrogram, frequencies, times, progress=progress)
+    image = generate_spectrogram_img(spectrogram, frequencies, times, progress=progress, px_per_second=PX_PER_SECOND,
+                                     img_height=SPECTROGRAM_HEIGHT)
 
     # Save the image
     image.save(os.path.join(folder_path, f"{filename}.png"))
@@ -190,7 +196,6 @@ def upload_file():
 
 @app.route("/api/query-process/<uuid>", methods=["POST"])
 def query_process(uuid):
-    # Todo: handle the case when the spectrogram is already generated
     # Get the progress associated with that UUID
     progress = progressOfSpectrograms[uuid]
 
