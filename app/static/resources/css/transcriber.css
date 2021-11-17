@@ -21,3 +21,15 @@
     text-align: center;
     color: white;
 }
+
+.ui-widget-header {
+	border: 1px solid #52489c;
+	background: #52489c;
+	color: #ffffff;
+	font-weight: bold;
+}
+
+/* ELEMENT-BASED STYLING */
+#spectrogram-progress-bar {
+    margin-top: 5px;
+}

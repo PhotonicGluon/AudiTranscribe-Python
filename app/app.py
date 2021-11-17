@@ -177,18 +177,26 @@ def upload_file():
 
 @app.route("/api/query-process/<uuid>", methods=["POST"])
 def query_process(uuid):
+    # Todo: handle the case when the spectrogram is already generated
     # Get the progress associated with that UUID
-    queue = progressOfSpectrograms[uuid]
+    progress = progressOfSpectrograms[uuid]
 
-    # Get the latest value in the progress
-    if queue[0] is None:  # Nothing processed yet
-        batch_no = 0
-        num_batches = 100  # Assume 100 batches
-    else:
-        batch_no, num_batches = queue[0]
+    # Check if the progress exists
+    if progress:
+        # Get the latest value in the progress
+        if progress[0] is None:  # Nothing processed yet
+            batch_no = 0
+            num_batches = 100  # Assume 100 batches
+        else:
+            batch_no, num_batches = progress[0]
 
-    # Return the progress values
-    return json.dumps({"batch_no": batch_no, "num_batches": num_batches})
+        # Calculate the progress percentage
+        progress_percentage = int(batch_no / num_batches * 100)  # As a number in the interval [0, 100]
+
+        # Return the progress values
+        return json.dumps({"Progress": progress_percentage})
+    else:  # The progress has been used and completed
+        return json.dumps({"Progress": 100})
 
 
 # WEBSITE PAGES
@@ -212,13 +220,18 @@ def transcriber(uuid):
     with open(os.path.join(folder_path, "status.yaml"), "r") as f:
         status = yaml.load(f, yaml.Loader)
 
-    # Create a location to store the spectrogram process
-    progressOfSpectrograms[uuid].append(None)  # One-element list for data sharing
+    # Check if the status ID is 0, 1 or 2
+    if status["status_id"] in [0, 1, 2]:
+        # Create a location to store the spectrogram process
+        progressOfSpectrograms[uuid].append(None)  # One-element list for data sharing
 
-    # Start a multiprocessing thread
-    process = threading.Thread(target=processing_file,
-                               args=(status["audio_file_name"], uuid, progressOfSpectrograms[uuid]))
-    process.start()
+        # Start a multiprocessing thread
+        process = threading.Thread(target=processing_file,
+                                   args=(status["audio_file_name"], uuid, progressOfSpectrograms[uuid]))
+        process.start()
+    else:
+        # Todo: show the page with the spectrogram
+        pass
 
     # Render the template
     return render_template("transcriber.html", file_name=status["audio_file_name"], uuid=uuid)

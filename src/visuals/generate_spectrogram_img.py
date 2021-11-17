@@ -72,10 +72,16 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
     # Calculate the number of batches needed
     num_batches = math.ceil(num_samples / batch_size)
 
+    # Determine what iterable to use
+    if progress is None:
+        iterable = trange(num_batches, desc="Iterating through batches")
+    else:
+        iterable = range(num_batches)
+
     # Generate all images
     images = []
 
-    for batch_no in trange(num_batches, desc="Iterating through batches"):
+    for batch_no in iterable:
         # Get the length of the audio
         if batch_no != num_batches - 1:  # Not last batch
             audio_length = times[(batch_no + 1) * batch_size - 1] - times[batch_no * batch_size]
