@@ -13,17 +13,29 @@
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"
             integrity="sha256-hlKLmzaRlE8SCJC1Kw8zoUbU8BxA+8kR3gseuKfMjxA=" crossorigin="anonymous"></script>
     <script>
-        const UUID = "{{ uuid }}";  // Obtained from context information
+        const STATUS_ID = {{ status_id }};
+        const UUID = "{{ uuid }}";
     </script>
+    {% if status_id == 1 %}
+        <script>
+            const SPECTROGRAM = new Image()
+            SPECTROGRAM.src = `/media/${UUID}/{{ spectrogram }}`;
+        </script>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
-    <div class="overlay">
+    <div class="overlay" id="overlay">
         <div class="progress-area">
             <span>Processing <code>{{ file_name }}</code></span>
             <div id="spectrogram-progress-bar"></div>
         </div>
+    </div>
 
+    <div class="transcription-area" id="transcription-area">
+        <div class="spectrogram" id="spectrogram-area">
+            <canvas id="spectrogram-canvas"></canvas>
+        </div>
     </div>
 {% endblock %}
 

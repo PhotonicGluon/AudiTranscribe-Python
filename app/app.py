@@ -17,7 +17,7 @@ from collections import defaultdict
 from uuid import uuid4
 
 import yaml
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, abort
 
 from src.audio import wav_samples_to_spectrogram, estimate_bpm
 from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
@@ -74,7 +74,7 @@ def processing_file(file: str, uuid: str, progress: list):
         file = file_new
 
         # Update audio file in the status file
-        update_status_file(status_file, audio_file_name=filename + ".wav", status_id=1)
+        update_status_file(status_file, audio_file_name=filename + ".wav")
 
     # Now split the WAV file into samples
     samples, sample_rate = wav_to_samples(file)
@@ -91,18 +91,18 @@ def processing_file(file: str, uuid: str, progress: list):
     # Estimate the BPM of the sample
     bpm = float(estimate_bpm(samples, sample_rate)[0])  # Todo: support dynamic BPM
 
-    # Delete the progress object
-    del progressOfSpectrograms[uuid]
-    del progress
-
     # Update status file
     update_status_file(
         os.path.join(folder_path, "status.yaml"),
         audio_file_name=filename + ".wav",
         spectrogram=f"{filename}.png",
         bpm=bpm,
-        status_id=3
+        status_id=1
     )
+
+    # Delete the progress object, signifying that the spectrogram processes are done
+    del progressOfSpectrograms[uuid]
+    del progress
 
 
 def update_status_file(status_file: str, **status_updates):
@@ -117,6 +117,19 @@ def update_status_file(status_file: str, **status_updates):
     # Dump updated status back to file
     with open(status_file, "w") as f:
         yaml.dump(status, f)
+
+
+# FOLDER PATHS
+@app.route("/media/<uuid>/<path:path>")
+def send_media(uuid, path):
+    # Generate the UUID's folder's path
+    folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
+
+    # Check if the UUID is valid
+    if not os.path.isdir(folder_path):
+        return abort(404)  # Not found
+
+    return send_from_directory(os.path.join("..", folder_path), path)  # Go out of the "app" directory into the root
 
 
 # API PAGES
@@ -220,8 +233,10 @@ def transcriber(uuid):
     with open(os.path.join(folder_path, "status.yaml"), "r") as f:
         status = yaml.load(f, yaml.Loader)
 
-    # Check if the status ID is 0, 1 or 2
-    if status["status_id"] in [0, 1, 2]:
+    # Check the status ID
+    status_id = status["status_id"]
+
+    if status_id == 0:  # Spectrogram not generated
         # Create a location to store the spectrogram process
         progressOfSpectrograms[uuid].append(None)  # One-element list for data sharing
 
@@ -229,12 +244,13 @@ def transcriber(uuid):
         process = threading.Thread(target=processing_file,
                                    args=(status["audio_file_name"], uuid, progressOfSpectrograms[uuid]))
         process.start()
-    else:
-        # Todo: show the page with the spectrogram
-        pass
 
-    # Render the template
-    return render_template("transcriber.html", file_name=status["audio_file_name"], uuid=uuid)
+        # Render the template
+        return render_template("transcriber.html", status_id=status_id, file_name=status["audio_file_name"], uuid=uuid)
+    else:
+        # Render the template
+        return render_template("transcriber.html", status_id=status_id, file_name=status["audio_file_name"], uuid=uuid,
+                               spectrogram=status["spectrogram"])
 
 
 # TESTING CODE

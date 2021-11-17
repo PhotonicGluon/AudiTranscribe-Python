@@ -22,6 +22,14 @@
     color: white;
 }
 
+.transcription-area {
+    background: black;
+}
+
+.spectrogram {
+    overflow: scroll;
+}
+
 .ui-widget-header {
 	border: 1px solid #52489c;
 	background: #52489c;

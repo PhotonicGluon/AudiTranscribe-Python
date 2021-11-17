@@ -1,38 +1,74 @@
 // CONSTANTS
-const CHECK_STATUS_INTERVAL = 2  // In seconds
+const CHECK_STATUS_INTERVAL = 2;  // In seconds
+const SPECTROGRAM_ZOOM_SCALE = 3;  // How much to zoom in?
 
 // GET ELEMENTS
+let overlayDiv = $("#overlay");
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
+
+let transcriptionAreaDiv = $("#transcription-area");
+let spectrogramCanvas = $("#spectrogram-canvas");
 
 // MAIN FUNCTIONS
 $(document).ready(() => {
-    // Create the progress bar
-    spectrogramProgressBar.progressbar({
-        value: 0  // Will be updated later
-    })
+    // Check the status ID
+    if (STATUS_ID === 0) {  // Spectrogram not yet generated
+        // Hide the transcription area
+        transcriptionAreaDiv.hide();
 
-    // Start an interval checking the progress every `CHECK_STATUS_INTERVAL` seconds
-    let spectrogramProgressInterval = setInterval(() => {
-        // Query the progress page
-        $.ajax({
-            url: `/api/query-process/${UUID}`,
-            method: "POST"
-        }).done((data) => {
-            // Parse the data
-            data = JSON.parse(data);
+        // Create the progress bar
+        spectrogramProgressBar.progressbar({
+            value: 0  // Will be updated later
+        })
 
-            // Todo: handle the case when the spectrogram is already generated
-            // The data returned is an integer representing the progress percentage
-            let progress = data["Progress"];
+        // Start an interval checking the progress every `CHECK_STATUS_INTERVAL` seconds
+        let spectrogramProgressInterval = setInterval(() => {
+            // Query the progress page
+            $.ajax({
+                url: `/api/query-process/${UUID}`,
+                method: "POST"
+            }).done((data) => {
+                // Parse the data
+                data = JSON.parse(data);
 
-            // Update progress bar
-            spectrogramProgressBar.progressbar("option", "value", data["Progress"]);
+                // Todo: handle the case when the spectrogram is already generated
+                // The data returned is an integer representing the progress percentage
+                let progress = data["Progress"];
 
-            // Check if progress is 100%
-            if (progress === 100) {
-                // Stop the interval
-                clearInterval(spectrogramProgressInterval);
-            }
-        });
-    }, CHECK_STATUS_INTERVAL * 1000);  // In ms
-})
+                // Update progress bar
+                spectrogramProgressBar.progressbar("option", "value", data["Progress"]);
+
+                // Check if progress is 100%
+                if (progress === 100) {
+                    // Stop the interval
+                    clearInterval(spectrogramProgressInterval);
+
+                    // Reload the page
+                    location.reload();
+                }
+            });
+        }, CHECK_STATUS_INTERVAL * 1000);  // In ms
+    } else {  // Spectrogram generated
+        // Hide the overlay
+        overlayDiv.hide();
+
+        // Generate the canvas context
+        let canvas = spectrogramCanvas[0];
+        let context = canvas.getContext("2d");
+
+        // Wait till the spectrogram is loaded
+        SPECTROGRAM.onload = () => {
+            // Resize the canvas to fit the image
+            canvas.width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE;
+            canvas.height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE;
+
+            // Set the context scale
+            context.scale(SPECTROGRAM_ZOOM_SCALE, SPECTROGRAM_ZOOM_SCALE);
+
+            // Draw image to the canvas
+            context.drawImage(SPECTROGRAM, 0, 0);
+        }
+
+        // Todo: add the other utilities
+    }
+});

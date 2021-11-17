@@ -1,7 +1,3 @@
 Todo:
-    - Add progress bar to the transcription page
-        - The progress sharing has been added, all that needs to be done is to
-            (a) implement the progress bar, and
-            (b) determine when the entire processing phase is complete
     - Add transcription page core features
     - Allow easy configuration of spectrogram image size
