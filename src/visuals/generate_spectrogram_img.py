@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-11-16
+Updated on 2021-11-17
 
 Copyright © Ryan Kan
 
@@ -12,16 +12,18 @@ Description: Code that generates a spectrogram image.
 # IMPORTS
 import io
 import math
+from typing import Optional
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from PIL import Image
 from tqdm import trange
 
 
 # FUNCTIONS
-def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, times: np.ndarray, batch_size: int = 100,
-                             px_per_second: int = 50, img_height=720, dpi: float = 100.) -> Image.Image:
+def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, times: np.ndarray,
+                             progress: Optional[list] = None, batch_size: int = 100, px_per_second: int = 50,
+                             img_height=720, dpi: float = 100.) -> Image.Image:
     """
     Generates a spectrogram image.
 
@@ -34,6 +36,12 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         times:
             Array of sample times.
+
+        progress:
+            List object to share the spectrogram processing process with other threads.
+            A list is used instead of a standard tuple to utilise address assignment of lists, and so the data can be
+            shared across threads.
+            (Default: None)
 
         batch_size:
             Size of each batch when generating each image.
@@ -106,6 +114,10 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         # Append the generated image to the list of all images
         images.append(img)
+
+        # Update the progress, if required
+        if progress is not None:
+            progress[0] = (batch_no, num_batches)  # Set the only element in the list to be the progress
 
     # Get the combined length of all images
     combined_length = 0

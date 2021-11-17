@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-16
+Updated on 2021-11-17
 
 Copyright © Ryan Kan
 
@@ -13,10 +13,11 @@ Description: Main flask application.
 import json
 import os
 import threading
+from collections import defaultdict
 from uuid import uuid4
 
+import yaml
 from flask import Flask, render_template, request, redirect, url_for, flash
-from yaml import dump, load, Loader
 
 from src.audio import wav_samples_to_spectrogram, estimate_bpm
 from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
@@ -47,14 +48,18 @@ try:
 except OSError:
     pass
 
+# GLOBAL VARIABLES
+progressOfSpectrograms = defaultdict(list)  # Use a list to allow for variable sharing
+
 
 # HELPER FUNCTIONS
-def allowed_file(filename):
+def allowed_file(filename: str):
     return "." in filename and filename.rsplit(".", 1)[1].upper() in ACCEPTED_FILE_TYPES
 
 
-def processing_file(file, folder_path):
-    # Generate the status file path
+def processing_file(file: str, uuid: str, progress: list):
+    # Generate the folder path and status file path
+    folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
     status_file = os.path.join(folder_path, "status.yaml")
 
     # Split the file into its filename and extension
@@ -78,14 +83,17 @@ def processing_file(file, folder_path):
     spectrogram, frequencies, times = wav_samples_to_spectrogram(sample_rate, samples)
 
     # Convert the spectrogram data into a spectrogram image
-    # Todo: update HTML page on this progress
-    image = generate_spectrogram_img(spectrogram, frequencies, times)
+    image = generate_spectrogram_img(spectrogram, frequencies, times, progress=progress)
 
     # Save the image
     image.save(os.path.join(folder_path, f"{filename}.png"))
 
     # Estimate the BPM of the sample
     bpm = float(estimate_bpm(samples, sample_rate)[0])  # Todo: support dynamic BPM
+
+    # Delete the progress object
+    del progressOfSpectrograms[uuid]
+    del progress
 
     # Update status file
     update_status_file(
@@ -97,10 +105,10 @@ def processing_file(file, folder_path):
     )
 
 
-def update_status_file(status_file, **status_updates):
+def update_status_file(status_file: str, **status_updates):
     # Load current status from file
     with open(status_file, "r") as f:
-        status = load(f, Loader)
+        status = yaml.load(f, yaml.Loader)
 
     # Update status
     for key, value in status_updates.items():
@@ -108,7 +116,7 @@ def update_status_file(status_file, **status_updates):
 
     # Dump updated status back to file
     with open(status_file, "w") as f:
-        dump(status, f)
+        yaml.dump(status, f)
 
 
 # API PAGES
@@ -150,13 +158,12 @@ def upload_file():
     status_blank = {
         "uuid": uuid,
         "audio_file_name": file.filename,
-        "status_id": 0,
-        "spectrogram_progress": 0,
+        "status_id": 0
     }
 
     # Create a status file
     with open(os.path.join(folder_path, "status.yaml"), "w") as f:
-        dump(status_blank, f)
+        yaml.dump(status_blank, f)
 
     # Todo: check if the file is readable
 
@@ -168,12 +175,20 @@ def upload_file():
     })
 
 
-@app.route("/api/query-process/<uuid>")
+@app.route("/api/query-process/<uuid>", methods=["POST"])
 def query_process(uuid):
-    # Generate the UUID's folder's path
-    folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
+    # Get the progress associated with that UUID
+    queue = progressOfSpectrograms[uuid]
 
-    # Todo: fill in
+    # Get the latest value in the progress
+    if queue[0] is None:  # Nothing processed yet
+        batch_no = 0
+        num_batches = 100  # Assume 100 batches
+    else:
+        batch_no, num_batches = queue[0]
+
+    # Return the progress values
+    return json.dumps({"batch_no": batch_no, "num_batches": num_batches})
 
 
 # WEBSITE PAGES
@@ -195,10 +210,14 @@ def transcriber(uuid):
 
     # Read the status file
     with open(os.path.join(folder_path, "status.yaml"), "r") as f:
-        status = load(f, Loader)
+        status = yaml.load(f, yaml.Loader)
+
+    # Create a location to store the spectrogram process
+    progressOfSpectrograms[uuid].append(None)  # One-element list for data sharing
 
     # Start a multiprocessing thread
-    process = threading.Thread(target=processing_file, args=(status["audio_file_name"], folder_path))
+    process = threading.Thread(target=processing_file,
+                               args=(status["audio_file_name"], uuid, progressOfSpectrograms[uuid]))
     process.start()
 
     # Render the template
