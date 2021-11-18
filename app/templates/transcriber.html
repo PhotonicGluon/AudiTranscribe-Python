@@ -13,30 +13,32 @@
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"
             integrity="sha256-hlKLmzaRlE8SCJC1Kw8zoUbU8BxA+8kR3gseuKfMjxA=" crossorigin="anonymous"></script>
     <script>
-        const STATUS_ID = {{ status_id }};
+        const SPECTROGRAM_GENERATED = {{ spectrogram_generated|lower }};  // Lowered because JS's booleans are lowercase
         const UUID = "{{ uuid }}";
     </script>
-    {% if status_id == 1 %}
+    {% if spectrogram_generated %}
         <script>
-            const SPECTROGRAM = new Image()
+            const SPECTROGRAM = new Image();
             SPECTROGRAM.src = `/media/${UUID}/{{ spectrogram }}`;
         </script>
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    <div class="overlay" id="overlay">
-        <div class="progress-area">
-            <span>Processing <code>{{ file_name }}</code></span>
-            <div id="spectrogram-progress-bar"></div>
+    {% if not spectrogram_generated %}
+        <div class="overlay" id="overlay">
+            <div class="progress-area">
+                <span>Processing <code>{{ file_name }}</code></span>
+                <div id="spectrogram-progress-bar"></div>
+            </div>
         </div>
-    </div>
-
-    <div class="transcription-area" id="transcription-area">
-        <div class="spectrogram" id="spectrogram-area">
-            <canvas id="spectrogram-canvas"></canvas>
+    {% else %}
+        <div class="transcription-area" id="transcription-area">
+            <div class="spectrogram" id="spectrogram-area">
+                <canvas id="spectrogram-canvas"></canvas>
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block body_scripts %}

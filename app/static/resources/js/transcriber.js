@@ -3,19 +3,13 @@ const CHECK_STATUS_INTERVAL = 2;  // In seconds
 const SPECTROGRAM_ZOOM_SCALE = 3;  // How much to zoom in?
 
 // GET ELEMENTS
-let overlayDiv = $("#overlay");
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
-
-let transcriptionAreaDiv = $("#transcription-area");
 let spectrogramCanvas = $("#spectrogram-canvas");
 
 // MAIN FUNCTIONS
 $(document).ready(() => {
     // Check the status ID
-    if (STATUS_ID === 0) {  // Spectrogram not yet generated
-        // Hide the transcription area
-        transcriptionAreaDiv.hide();
-
+    if (!SPECTROGRAM_GENERATED) {
         // Create the progress bar
         spectrogramProgressBar.progressbar({
             value: 0  // Will be updated later
@@ -49,9 +43,6 @@ $(document).ready(() => {
             });
         }, CHECK_STATUS_INTERVAL * 1000);  // In ms
     } else {  // Spectrogram generated
-        // Hide the overlay
-        overlayDiv.hide();
-
         // Generate the canvas context
         let canvas = spectrogramCanvas[0];
         let context = canvas.getContext("2d");

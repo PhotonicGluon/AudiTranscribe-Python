@@ -98,7 +98,7 @@ def processing_file(file: str, uuid: str, progress: list):
         os.path.join(folder_path, "status.yaml"),
         spectrogram=f"{filename}.png",
         bpm=bpm,
-        status_id=1
+        spectrogram_generated=True
     )
 
     # Remove the WAV file
@@ -194,7 +194,7 @@ def upload_file():
     status_blank = {
         "uuid": uuid,
         "audio_file_name": file.filename,
-        "status_id": 0
+        "spectrogram_generated": False
     }
 
     # Create a status file
@@ -253,10 +253,10 @@ def transcriber(uuid):
     with open(os.path.join(folder_path, "status.yaml"), "r") as f:
         status = yaml.load(f, yaml.Loader)
 
-    # Check the status ID
-    status_id = status["status_id"]
+    # Check whether the spectrogram has been generated or not
+    spectrogram_generated = status["spectrogram_generated"]
 
-    if status_id == 0:  # Spectrogram not generated
+    if not spectrogram_generated:
         # Create a location to store the spectrogram process
         progressOfSpectrograms[uuid].append(None)  # One-element list for data sharing
 
@@ -266,11 +266,12 @@ def transcriber(uuid):
         process.start()
 
         # Render the template
-        return render_template("transcriber.html", status_id=status_id, file_name=status["audio_file_name"], uuid=uuid)
+        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated,
+                               file_name=status["audio_file_name"], uuid=uuid)
     else:
         # Render the template
-        return render_template("transcriber.html", status_id=status_id, file_name=status["audio_file_name"], uuid=uuid,
-                               spectrogram=status["spectrogram"])
+        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated,
+                               file_name=status["audio_file_name"], uuid=uuid, spectrogram=status["spectrogram"])
 
 
 # TESTING CODE
