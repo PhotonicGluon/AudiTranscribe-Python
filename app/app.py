@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-17
+Updated on 2021-11-18
 
 Copyright © Ryan Kan
 
@@ -18,6 +18,8 @@ from uuid import uuid4
 
 import yaml
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, abort
+from pydub import AudioSegment
+from pydub.exceptions import CouldntDecodeError
 
 from src.audio import wav_samples_to_spectrogram, estimate_bpm
 from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
@@ -65,24 +67,18 @@ def allowed_file(filename: str):
 def processing_file(file: str, uuid: str, progress: list):
     # Generate the folder path and status file path
     folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
-    status_file = os.path.join(folder_path, "status.yaml")
 
     # Split the file into its filename and extension
     filename, extension = os.path.splitext(file)
 
     # If the file is not a WAV file then process it
     if extension[1:].upper() != "WAV":
-        file_new = audio_to_wav(os.path.join(folder_path, file))
-
-        # Remove the old file
-        os.remove(os.path.join(folder_path, file))
-        file = file_new
-
-        # Update audio file in the status file
-        update_status_file(status_file, audio_file_name=filename + ".wav")
+        file_wav = audio_to_wav(os.path.join(folder_path, file))
+    else:
+        file_wav = os.path.join(folder_path, file)
 
     # Now split the WAV file into samples
-    samples, sample_rate = wav_to_samples(file)
+    samples, sample_rate = wav_to_samples(file_wav)
 
     # Convert the samples into a spectrogram
     spectrogram, frequencies, times = wav_samples_to_spectrogram(sample_rate, samples)
@@ -100,11 +96,13 @@ def processing_file(file: str, uuid: str, progress: list):
     # Update status file
     update_status_file(
         os.path.join(folder_path, "status.yaml"),
-        audio_file_name=filename + ".wav",
         spectrogram=f"{filename}.png",
         bpm=bpm,
         status_id=1
     )
+
+    # Remove the WAV file
+    os.remove(file_wav)
 
     # Delete the progress object, signifying that the spectrogram processes are done
     del progressOfSpectrograms[uuid]
@@ -143,19 +141,21 @@ def send_media(uuid, path):
 def upload_file():
     # Check if the request has the file
     if "file" not in request.files:
-        return {"outcome": "error", "msg": "No file uploaded."}
+        return json.dumps({"outcome": "error", "msg": "No file uploaded."})
 
     # Get the file
     file = request.files["file"]
 
     # Check if the file is empty or not
     if file.filename == "":
-        return {"outcome": "error", "msg": "File is empty."}
+        return json.dumps({"outcome": "error", "msg": "File is empty."})
 
     # Check if the file is of the correct extension
     if not allowed_file(file.filename):
-        return {"outcome": "error",
-                "msg": f"File does not have correct format. Accepted: {', '.join(ACCEPTED_FILE_TYPES)}."}
+        return json.dumps({
+            "outcome": "error",
+            "msg": f"File does not have correct format. Accepted: {', '.join(ACCEPTED_FILE_TYPES)}."
+        })
 
     # Create a folder for this specific audio
     while True:
@@ -173,6 +173,23 @@ def upload_file():
     # Save the file
     file.save(os.path.join(folder_path, file.filename))
 
+    # Get the file's extension
+    _, extension = os.path.splitext(file.filename)
+
+    # Check if the file is readable
+    try:
+        AudioSegment.from_file(os.path.join(folder_path, file.filename), SUPPORTED_AUDIO_EXTENSIONS[extension])
+    except (IndexError, CouldntDecodeError):
+        # Delete the file and folder from the server
+        os.remove(os.path.join(folder_path, file.filename))
+        os.rmdir(folder_path)
+
+        # Return the error message
+        return json.dumps({
+            "outcome": "error",
+            "msg": f"File supposedly of type {extension[1:]} but couldn't decode."
+        })
+
     # Create a blank status dictionary
     status_blank = {
         "uuid": uuid,
@@ -183,8 +200,6 @@ def upload_file():
     # Create a status file
     with open(os.path.join(folder_path, "status.yaml"), "w") as f:
         yaml.dump(status_blank, f)
-
-    # Todo: check if the file is readable
 
     # Provide the link to another page for the analysis of that audio file
     return json.dumps({

@@ -52,7 +52,6 @@ uploadFile.change(() => {
         processData: false // NEEDED, DON'T OMIT THIS
     }).done((data) => {
         // Parse the JSON data
-        console.log(data);
         data = JSON.parse(data);
 
         // Check the outcome
@@ -69,6 +68,5 @@ uploadFile.change(() => {
             // Redirect to the next page
             window.location.href = data["url"];
         }
-        console.log("7")
     });
 });
