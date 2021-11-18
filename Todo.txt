@@ -1,4 +1,5 @@
 Todo:
+    - Set `ylim` of spectrogram plot dynamically according to the notes used
     - Add transcription page core features
     - Allow easy configuration of spectrogram image size
         - Make the "frequency resolution" higher

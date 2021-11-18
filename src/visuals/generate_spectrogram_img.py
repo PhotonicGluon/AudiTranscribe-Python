@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-11-17
+Updated on 2021-11-18
 
 Copyright © Ryan Kan
 
@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from tqdm import trange
+
+from src.misc import note_number_to_freq
 
 
 # FUNCTIONS
@@ -93,23 +95,25 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         fig.add_axes(ax)
 
-        # Plot the spectrogram
+        # Get the times and spectrogram section
         if batch_no != num_batches - 1:  # Not last batch
-            ax.pcolormesh(
-                times[batch_no * batch_size: (batch_no + 1) * batch_size - 1],
-                frequencies,  # Want ALL frequencies
-                spectrogram[:, batch_no * batch_size: (batch_no + 1) * batch_size - 1],
-                shading="gouraud"
-            )
+            needed_time = times[batch_no * batch_size: (batch_no + 1) * batch_size - 1]
+            needed_spectrogram = spectrogram[:, batch_no * batch_size: (batch_no + 1) * batch_size - 1]
         else:
-            ax.pcolormesh(
-                times[(num_batches - 1) * batch_size:],
-                frequencies,  # Want ALL frequencies
-                spectrogram[:, (num_batches - 1) * batch_size:],
-                shading="gouraud"
-            )
+            needed_time = times[(num_batches - 1) * batch_size:]
+            needed_spectrogram = spectrogram[:, (num_batches - 1) * batch_size:]
 
+        # Plot the spectrogram
         ax.set_axis_off()  # Remove axis labels
+        ax.set_yscale("symlog", base=2, linthresh=note_number_to_freq(36))  # Note 36 is C3
+        ax.set_ylim(0., 4096.)  # Todo: Set `ylim` of spectrogram plot dynamically according to the notes used
+
+        ax.pcolormesh(
+            needed_time,
+            frequencies,  # Want ALL the frequencies
+            needed_spectrogram,
+            shading="gouraud",
+        )
 
         # Save the spectrogram to the image buffer
         img_buf = io.BytesIO()
@@ -149,7 +153,7 @@ if __name__ == "__main__":
     from src.io import wav_to_samples
 
     # Read the testing WAV file
-    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Fly.wav")
+    samples_, sample_rate_ = wav_to_samples("../../Testing Files/TheWoods.wav")
 
     # Convert to spectrogram
     spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
