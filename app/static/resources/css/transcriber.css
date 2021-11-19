@@ -1,4 +1,28 @@
 /* CLASS-BASED STYLING */
+.main-menu-div {
+    display: table-cell;
+    vertical-align: top;
+}
+
+.main-menu {
+    width: 25vw;
+    height: 100vh;
+    background: white;
+    position: sticky;
+    top: 0;
+    border-right: black 5px solid;
+}
+
+.main-menu h1, .main-menu h3 {
+    margin: 0;
+    padding-top: 5px;
+    text-align: center;
+}
+
+.notes {
+    display: table-cell;
+}
+
 .overlay {
     background-image: url(../img/header_background.png);
     background-size: cover;
@@ -23,11 +47,19 @@
 }
 
 .transcription-area {
-    background: black;
+    background: gray;  /* Todo: remove this colour */
+    display: table-row;
+}
+
+.sidebar {
+    display: table-row;
+    position: sticky;
+    left: 0;
 }
 
 .spectrogram {
     overflow: scroll;
+    display: table-cell;
 }
 
 .ui-widget-header {

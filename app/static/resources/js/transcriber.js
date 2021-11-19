@@ -1,9 +1,14 @@
 // CONSTANTS
 const CHECK_STATUS_INTERVAL = 2;  // In seconds
-const SPECTROGRAM_ZOOM_SCALE = 3;  // How much to zoom in?
+const SPECTROGRAM_ZOOM_SCALE_X = 3;  // How much to zoom in along the x-axis?
+const SPECTROGRAM_ZOOM_SCALE_Y = 5;  // How much to zoom in along the y-axis?
+
+const NOTES_CANVAS_WIDTH = 50;  // In px
+const NOTES_FONT_SIZE = 18;  // In px
 
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
+let notesCanvas = $("#notes-canvas");
 let spectrogramCanvas = $("#spectrogram-canvas");
 
 // HELPER FUNCTIONS
@@ -12,6 +17,29 @@ function noteNumberToFreq(noteNumber) {
     // Taken from https://en.wikipedia.org/wiki/Piano_key_frequencies
     // The note number has been shift to ensure that note number 0 is C0, not the key number on a piano
     return Math.pow(2, (noteNumber - 57) / 12) * 440;
+}
+
+// Converts a given note number to a human-readable note string
+function noteNumberToNote(noteNumber, key = "C") {
+    // Define a list of notes
+    let notes = ["C", ["C#", "Db"], "D", ["D#", "Eb"], "E", "F", ["F#", "Gb"], "G", ["G#", "Ab"], "A", ["A#", "Bb"],
+        "B"];
+
+    // Convert the note number to a note and an octave
+    let note = notes[noteNumber % 12];
+    let octave = Math.floor(noteNumber / 12);  // Note number 0 is C0
+
+    // If the note has two or more elements, pick the correct one
+    if (Array.isArray(note)) {
+        if (["C", "D", "E", "F#", "Gb", "G", "A", "B"].includes(key)) {
+            note = note[0];  // Take the first element
+        } else {
+            note = note[1];  // Take the second element
+        }
+    }
+
+    // Return the note with the octave
+    return note + octave
 }
 
 // Converts a given frequency to a height on the canvas
@@ -24,6 +52,11 @@ function freqToHeight(freq) {
     // Scale accordingly and return. Since (0, 0) is the upper left we have to adjust to make (0, 0) to be the lower
     // left corner instead
     return (1 - (loggedFrequency - loggedMinimum) / (loggedMaximum - loggedMinimum)) * SPECTROGRAM.height;
+}
+
+// Gets the height difference between two adjacent notes
+function getHeightDifference() {
+    return SPECTROGRAM.height / (NOTE_NUMBER_RANGE[1] - NOTE_NUMBER_RANGE[0]);
 }
 
 // MAIN FUNCTIONS
@@ -45,7 +78,6 @@ $(document).ready(() => {
                 // Parse the data
                 data = JSON.parse(data);
 
-                // Todo: handle the case when the spectrogram is already generated
                 // The data returned is an integer representing the progress percentage
                 let progress = data["Progress"];
 
@@ -63,46 +95,73 @@ $(document).ready(() => {
             });
         }, CHECK_STATUS_INTERVAL * 1000);  // In ms
     } else {  // Spectrogram generated
-        // Generate the canvas context
-        let canvas = spectrogramCanvas[0];
-        let context = canvas.getContext("2d");
+        // Get contexts for canvases
+        let notesCtx = notesCanvas[0].getContext("2d");
+        let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
 
         // Wait till the spectrogram is loaded
         SPECTROGRAM.onload = () => {
-            // Resize the canvas to fit the image
-            canvas.width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE;
-            canvas.height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE;
+            // Adjust body to fit image width and height
+            document.body.style.width = `${SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X}px`;
 
-            // Set the context scale
-            context.scale(SPECTROGRAM_ZOOM_SCALE, SPECTROGRAM_ZOOM_SCALE);
+            // Resize the canvases to fit the image
+            notesCanvas[0].width = NOTES_CANVAS_WIDTH;
+            notesCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+
+            spectrogramCanvas[0].width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
+            spectrogramCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+
+            // Set the contexts' scale
+            spectrogramCtx.scale(SPECTROGRAM_ZOOM_SCALE_X, SPECTROGRAM_ZOOM_SCALE_Y);
 
             // Draw image to the canvas
-            context.drawImage(SPECTROGRAM, 0, 0);
+            spectrogramCtx.drawImage(SPECTROGRAM, 0, 0);
+
+            // Draw background of notes area
+            notesCtx.fillStyle = "#ffffff";
+            notesCtx.fillRect(0, 0, notesCanvas[0].width, notesCanvas[0].height);
 
             // Add lines for every note
             for (let i = NOTE_NUMBER_RANGE[0]; i <= NOTE_NUMBER_RANGE[1]; i++) {
                 // Start a new path
-                context.beginPath();
+                spectrogramCtx.beginPath();
 
                 // Set the dotted line format
-                context.setLineDash([10, 10]);  // Solid for 10, blank for 10
+                spectrogramCtx.setLineDash([5, 3]);  // Solid for 5, blank for 3
 
                 // Calculate the height to move the pointer to
                 let heightToMoveTo = freqToHeight(noteNumberToFreq(i));
 
                 // Move the pointer to the correct spot
-                context.moveTo(0, heightToMoveTo);
+                spectrogramCtx.moveTo(
+                    0,
+                    heightToMoveTo + getHeightDifference() / 2);  // Make the gap represent the note, not the line
 
                 // Draw the line
-                context.lineTo(canvas.width, heightToMoveTo);
-                context.strokeStyle = "#ffffff77";  // White with ~50% opacity
-                context.stroke();
+                spectrogramCtx.lineTo(spectrogramCanvas[0].width, heightToMoveTo + getHeightDifference() / 2);
+                spectrogramCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";  // White with 50% opacity
+                spectrogramCtx.lineWidth = 1;
+                spectrogramCtx.stroke();
+
+                // Get the note's text
+                let note = noteNumberToNote(i);  // Todo: allow changing of the key
+
+                // Center align the text on the correct row
+                // Todo: fix the C0 and B9 going off screen
+                notesCtx.font = `${NOTES_FONT_SIZE}px Arial`;
+                notesCtx.textAlign = "center";
+                notesCtx.fillStyle = "#000000";
+                notesCtx.fillText(
+                    note,
+                    NOTES_CANVAS_WIDTH / 2,
+                    heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE  // Apparently 3/8 works???
+                );
             }
+
+            // Todo: add the other utilities
 
             // Scroll to the bottom of the page
             window.scrollTo(0, document.body.scrollHeight);
         }
-
-        // Todo: add the other utilities
     }
 });

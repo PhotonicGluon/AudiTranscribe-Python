@@ -35,7 +35,19 @@
         </div>
     {% else %}
         <div class="transcription-area" id="transcription-area">
+            <div class="sidebar">
+                <div class="main-menu-div">
+                    <div class="main-menu">
+                        <h1>AudiTranscribe</h1>
+                        <h3>File: <code>{{ file_name }}</code></h3>
+                    </div>
+                </div>
+                <div class="notes" id="notes-area">
+                    <canvas id="notes-canvas"></canvas>
+                </div>
+            </div>
             <div class="spectrogram" id="spectrogram-area">
+                <!-- Todo: fix annoying gray bar at the bottom of the canvas -->
                 <canvas id="spectrogram-canvas"></canvas>
             </div>
         </div>
