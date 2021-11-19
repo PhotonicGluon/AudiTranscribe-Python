@@ -92,7 +92,7 @@ def processing_file(file: str, uuid: str, progress: list):
     image.save(os.path.join(folder_path, f"{filename}.png"))
 
     # Estimate the BPM of the sample
-    bpm = float(estimate_bpm(samples, sample_rate)[0])  # Todo: support dynamic BPM
+    bpm = int(estimate_bpm(samples, sample_rate)[0])  # Todo: support dynamic BPM
 
     # Update status file
     update_status_file(
