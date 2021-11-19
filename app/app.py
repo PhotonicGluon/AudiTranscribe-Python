@@ -102,8 +102,9 @@ def processing_file(file: str, uuid: str, progress: list):
         spectrogram_generated=True
     )
 
-    # Remove the WAV file
-    os.remove(file_wav)
+    # Remove the WAV file if the original uploaded file was NOT the WAV file
+    if extension[1:].upper() != "WAV":
+        os.remove(file_wav)
 
     # Delete the progress object, signifying that the spectrogram processes are done
     del progressOfSpectrograms[uuid]
