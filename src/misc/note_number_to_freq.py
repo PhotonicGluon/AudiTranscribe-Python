@@ -2,12 +2,15 @@
 note_number_to_freq.py
 
 Created on 2021-11-18
-Updated on 2021-11-18
+Updated on 2021-11-19
 
 Copyright © Ryan Kan
 
 Description: Converts a note number to the frequency.
 """
+
+# CONSTANTS
+NOTE_NUMBER_RANGE = [0, 119]  # In the form [min, max]
 
 
 # FUNCTIONS
@@ -27,4 +30,4 @@ def note_number_to_freq(note_number: int) -> float:
         - This assumes that the notes have been tuned to A440.
     """
 
-    return 2**((note_number - 57) / 12) * 440
+    return 2 ** ((note_number - 57) / 12) * 440

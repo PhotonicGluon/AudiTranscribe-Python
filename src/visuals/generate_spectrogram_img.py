@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-11-18
+Updated on 2021-11-19
 
 Copyright © Ryan Kan
 
@@ -19,7 +19,7 @@ import numpy as np
 from PIL import Image
 from tqdm import trange
 
-from src.misc import note_number_to_freq
+from src.misc import NOTE_NUMBER_RANGE, note_number_to_freq
 
 
 # FUNCTIONS
@@ -105,8 +105,8 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         # Plot the spectrogram
         ax.set_axis_off()  # Remove axis labels
-        ax.set_yscale("symlog", base=2, linthresh=note_number_to_freq(36))  # Note 36 is C3
-        ax.set_ylim(0., 4096.)  # Todo: Set `ylim` of spectrogram plot dynamically according to the notes used
+        ax.set_yscale("symlog", base=2)
+        ax.set_ylim(note_number_to_freq(NOTE_NUMBER_RANGE[0]), note_number_to_freq(NOTE_NUMBER_RANGE[1]))
 
         ax.pcolormesh(
             needed_time,

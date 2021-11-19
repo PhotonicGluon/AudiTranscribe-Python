@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-18
+Updated on 2021-11-19
 
 Copyright © Ryan Kan
 
@@ -23,6 +23,7 @@ from pydub.exceptions import CouldntDecodeError
 
 from src.audio import wav_samples_to_spectrogram, estimate_bpm
 from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
+from src.misc import NOTE_NUMBER_RANGE
 from src.visuals import generate_spectrogram_img
 
 # CONSTANTS
@@ -271,7 +272,8 @@ def transcriber(uuid):
     else:
         # Render the template
         return render_template("transcriber.html", spectrogram_generated=spectrogram_generated,
-                               file_name=status["audio_file_name"], uuid=uuid, spectrogram=status["spectrogram"])
+                               file_name=status["audio_file_name"], uuid=uuid, spectrogram=status["spectrogram"],
+                               note_number_range=NOTE_NUMBER_RANGE)
 
 
 # TESTING CODE

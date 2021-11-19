@@ -18,6 +18,7 @@
     </script>
     {% if spectrogram_generated %}
         <script>
+            const NOTE_NUMBER_RANGE = {{ note_number_range }};
             const SPECTROGRAM = new Image();
             SPECTROGRAM.src = `/media/${UUID}/{{ spectrogram }}`;
         </script>
