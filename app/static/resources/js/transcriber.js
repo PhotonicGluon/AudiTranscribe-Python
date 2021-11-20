@@ -1,15 +1,21 @@
 // CONSTANTS
 const CHECK_STATUS_INTERVAL = 2;  // In seconds
-const SPECTROGRAM_ZOOM_SCALE_X = 3;  // How much to zoom in along the x-axis?
+const SPECTROGRAM_ZOOM_SCALE_X = 2;  // How much to zoom in along the x-axis?
 const SPECTROGRAM_ZOOM_SCALE_Y = 5;  // How much to zoom in along the y-axis?
 
-const NOTES_CANVAS_WIDTH = 50;  // In px
 const NOTES_FONT_SIZE = 14;  // In pt
+
+const NUMBERS_CANVAS_HEIGHT = 40;  // In px
+const NUMBERS_FONT_SIZE = 14;  // In pt
 
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
+
+let notesArea = $("#notes-area");
+
 let barsCanvas = $("#bars-canvas");
 let notesCanvas = $("#notes-canvas");
+let numbersCanvas = $("#numbers-canvas");
 let spectrogramCanvas = $("#spectrogram-canvas");
 
 // HELPER FUNCTIONS
@@ -104,18 +110,16 @@ $(document).ready(() => {
         // Get contexts for canvases
         let barsCtx = barsCanvas[0].getContext("2d");
         let notesCtx = notesCanvas[0].getContext("2d");
+        let numbersCtx = numbersCanvas[0].getContext("2d");
         let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
 
         // Wait till the spectrogram is loaded
         SPECTROGRAM.onload = () => {
-            // Adjust body to fit image width and height
-            document.body.style.width = `${SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X}px`;
-
             // Resize the canvases to fit the image
             barsCanvas[0].width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
             barsCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
-            notesCanvas[0].width = NOTES_CANVAS_WIDTH;
+            notesCanvas[0].width = notesArea[0].clientWidth;
             notesCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
             spectrogramCanvas[0].width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
@@ -163,30 +167,30 @@ $(document).ready(() => {
                 notesCtx.fillStyle = "#000000";
                 notesCtx.fillText(
                     note,
-                    NOTES_CANVAS_WIDTH / 2,
+                    notesArea[0].clientWidth / 2,
                     heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE * 4/3  // 4/3 convert pt -> px
                 );
             }
 
             // Add lines for every beat
             // Todo: add other beat stuff
+            // Todo: allow user to set initial beat offset
+            // Todo: allow BPM changing
             let numBeats = Math.ceil(BPM / 60 * DURATION);  // `numBeats`is a whole number
 
-            for (let i = 1; i <= numBeats; i++) {  // Start at 1 because starting at 0 will draw a line through the axis
+            for (let i = 0; i <= numBeats; i++) {
                 // Calculate position to place the beat
                 let pos = i * secondsPerBeat() * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
 
                 // Draw the beat line on the bars context
+                // Todo: fix some lines looking more opaque than others
                 barsCtx.setLineDash([5, 5]);
                 barsCtx.moveTo(pos, 0);
                 barsCtx.lineTo(pos, spectrogramCanvas[0].height);
-                barsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change colour
+                barsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change the colour
                 barsCtx.lineWidth = 1;
                 barsCtx.stroke();
             }
-
-            // Scroll to the bottom of the page
-            window.scrollTo(0, document.body.scrollHeight);
         }
     }
 });

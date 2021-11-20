@@ -2,7 +2,7 @@
 wav_to_spectrogram.py
 
 Created on 2021-11-14
-Updated on 2021-11-18
+Updated on 2021-11-20
 
 Copyright © Ryan Kan
 
@@ -58,15 +58,11 @@ def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int
     # Keep only the magnitude of the complex numbers from the STFT
     spectrogram = np.abs(stft)
 
-    # spectrogram = librosa.feature.melspectrogram(samples, sr=sample_rate)
-
-    # Convert the amplitude of the sound to decibels
-    # Todo: perhaps the "loudness" of the pitch is not best conveyed by using this conversion
-    spectrogram = librosa.amplitude_to_db(spectrogram, ref=np.max)
-
     # Get the possible frequencies from the spectrogram
     frequencies = librosa.fft_frequencies(sr=sample_rate, n_fft=n_fft)
-    # frequencies = librosa.mel_frequencies()
+
+    # Convert the amplitude of the sound to decibels
+    spectrogram = librosa.amplitude_to_db(spectrogram, ref=np.max)
 
     # Get the time data
     frame_numbers = np.arange(spectrogram.shape[1])  # Get the time axis size

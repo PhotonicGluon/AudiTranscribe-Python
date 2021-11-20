@@ -66,10 +66,6 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
     Returns:
         spectrogram_image
-
-    Todo:
-        Spectrogram image's width is still off by ~0.1% for a 48s audio and ~0.2% for a 5s audio. How to fix?
-            - Force resize image to fit duration?
     """
 
     # Get the number of samples
@@ -163,7 +159,7 @@ if __name__ == "__main__":
     from src.io import wav_to_samples
 
     # Read the testing WAV file
-    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Increments.wav")
+    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Melancholy.wav")
 
     # Convert to spectrogram
     spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
@@ -172,7 +168,7 @@ if __name__ == "__main__":
     duration_ = get_audio_length(samples_, sample_rate_)
 
     # Generate spectrogram
-    image = generate_spectrogram_img(spec, freq, time, duration_)
+    image = generate_spectrogram_img(spec, freq, time, duration_, px_per_second=100)
 
     # Display it
     image.show(title="Spectrogram Image")

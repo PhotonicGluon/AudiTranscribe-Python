@@ -1,21 +1,18 @@
 /* CLASS-BASED STYLING */
-.bars-area {
-    position: absolute;
-    top: 0;
-    height: 100vh;
+.main-area {
+    width: 75vw;
+    height: 99vh;  /* Fixme: Make this 100vh (set to 100vh to avoid a scrollbar from appearing) */
 }
 
-.main-menu-div {
-    display: table-cell;
-    vertical-align: top;
+.main-page {
+    display: flex;
+    background: gray;  /* Todo: remove this colour */
 }
 
 .main-menu {
-    width: 25vw;
+    width: calc(25vw - 5px);  /* Account for the border */
     height: 100vh;
     background: white;
-    position: sticky;
-    top: 0;
     border-right: black 5px solid;
 }
 
@@ -25,8 +22,17 @@
     text-align: center;
 }
 
-.notes {
-    display: table-cell;
+.notes-area {
+    width: 50px;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+.numbers-area {
+    display: block;
+    width: 100%;
+    height: 50px;
 }
 
 .overlay {
@@ -52,25 +58,20 @@
     color: white;
 }
 
-.main-area {
-    background: gray;  /* Todo: remove this colour */
-    display: table-row;
-}
-
 .sidebar {
-    display: table-row;
-    position: sticky;
-    left: 0;
-    z-index: 1;
+    width: 25vw;
+    height: 100vh;
 }
 
 .spectrogram-area {
-
+    position: relative;
+    width: calc(100% - 50px);
 }
 
 .transcription-area {
+    display: flex;
+    height: calc(100% - 50px);
     overflow: scroll;
-    display: table-cell;
 }
 
 .ui-widget-header {
@@ -81,6 +82,11 @@
 }
 
 /* ELEMENT-BASED STYLING */
+#bars-canvas {
+    position: absolute;
+    z-index: 1;
+}
+
 #spectrogram-progress-bar {
     margin-top: 5px;
 }
