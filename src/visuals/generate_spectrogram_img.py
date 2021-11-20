@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-11-19
+Updated on 2021-11-20
 
 Copyright © Ryan Kan
 
@@ -51,7 +51,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         px_per_second:
             Number of pixels of the spectrogram dedicated to each second of audio.
-            (Default: 64)
+            (Default: 50)
 
         img_height:
             Height of the image, in pixels.
@@ -65,7 +65,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
         spectrogram_image
 
     Todo:
-        Allow this to 'output' some progress data that can be read by Python code (NOT tqdm progess bars).
+        Spectrogram image's width is still off by ~3 pixels for a 48s audio. How to fix?
     """
 
     # Get the number of samples
@@ -85,8 +85,9 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
     for batch_no in iterable:
         # Get the length of the audio
+
         if batch_no != num_batches - 1:  # Not last batch
-            audio_length = times[(batch_no + 1) * batch_size - 1] - times[batch_no * batch_size]
+            audio_length = times[(batch_no + 1) * batch_size] - times[batch_no * batch_size]
         else:
             audio_length = times[-1] - times[(num_batches - 1) * batch_size]
 
@@ -153,7 +154,7 @@ if __name__ == "__main__":
     from src.io import wav_to_samples
 
     # Read the testing WAV file
-    samples_, sample_rate_ = wav_to_samples("../../Testing Files/TheWoods.wav")
+    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Increments.wav")
 
     # Convert to spectrogram
     spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
