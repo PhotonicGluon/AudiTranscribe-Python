@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-19
+Updated on 2021-11-20
 
 Copyright © Ryan Kan
 
@@ -21,7 +21,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 
-from src.audio import wav_samples_to_spectrogram, estimate_bpm
+from src.audio import estimate_bpm, get_audio_length, wav_samples_to_spectrogram
 from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
 from src.misc import NOTE_NUMBER_RANGE
 from src.visuals import generate_spectrogram_img
@@ -94,11 +94,15 @@ def processing_file(file: str, uuid: str, progress: list):
     # Estimate the BPM of the sample
     bpm = int(estimate_bpm(samples, sample_rate)[0])  # Todo: support dynamic BPM
 
+    # Calculate the duration of the audio
+    duration = get_audio_length(samples, sample_rate)
+
     # Update status file
     update_status_file(
         os.path.join(folder_path, "status.yaml"),
         spectrogram=f"{filename}.png",
         bpm=bpm,
+        duration=duration,
         spectrogram_generated=True
     )
 
@@ -274,7 +278,8 @@ def transcriber(uuid):
         # Render the template
         return render_template("transcriber.html", spectrogram_generated=spectrogram_generated,
                                file_name=status["audio_file_name"], uuid=uuid, spectrogram=status["spectrogram"],
-                               note_number_range=NOTE_NUMBER_RANGE, bpm=status["bpm"], px_per_second=PX_PER_SECOND)
+                               note_number_range=NOTE_NUMBER_RANGE, duration=status["duration"], bpm=status["bpm"],
+                               px_per_second=PX_PER_SECOND)
 
 
 # TESTING CODE

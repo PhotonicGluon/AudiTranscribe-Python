@@ -1,6 +1,6 @@
 /* CLASS-BASED STYLING */
 .bars-area {
-    position: fixed;
+    position: absolute;
     top: 0;
     height: 100vh;
 }
@@ -61,6 +61,7 @@
     display: table-row;
     position: sticky;
     left: 0;
+    z-index: 1;
 }
 
 .spectrogram-area {

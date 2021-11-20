@@ -113,7 +113,7 @@ $(document).ready(() => {
 
             // Resize the canvases to fit the image
             barsCanvas[0].width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
-            barsCanvas[0].height = barsCanvas.parent().height();
+            barsCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
             notesCanvas[0].width = NOTES_CANVAS_WIDTH;
             notesCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
@@ -169,22 +169,22 @@ $(document).ready(() => {
             }
 
             // Add lines for every beat
-            let numBeats = Math.ceil(BPM / 60 * (SPECTROGRAM.width / PX_PER_SECOND));  // `numBeats`is a whole number
+            // Todo: add other beat stuff
+            let numBeats = Math.ceil(BPM / 60 * DURATION);  // `numBeats`is a whole number
 
             for (let i = 1; i <= numBeats; i++) {  // Start at 1 because starting at 0 will draw a line through the axis
                 // Calculate position to place the beat
                 let pos = i * secondsPerBeat() * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+                console.log(pos);
 
                 // Draw the beat line on the bars context
-                barsCtx.setLineDash([5, 5]);  // Solid for 5, blank for 5
+                barsCtx.setLineDash([5, 5]);
                 barsCtx.moveTo(pos, 0);
                 barsCtx.lineTo(pos, spectrogramCanvas[0].height);
                 barsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change colour
                 barsCtx.lineWidth = 1;
                 barsCtx.stroke();
             }
-
-            // Todo: add the other utilities
 
             // Scroll to the bottom of the page
             window.scrollTo(0, document.body.scrollHeight);
