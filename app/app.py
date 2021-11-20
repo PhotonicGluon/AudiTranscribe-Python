@@ -274,7 +274,7 @@ def transcriber(uuid):
         # Render the template
         return render_template("transcriber.html", spectrogram_generated=spectrogram_generated,
                                file_name=status["audio_file_name"], uuid=uuid, spectrogram=status["spectrogram"],
-                               note_number_range=NOTE_NUMBER_RANGE)
+                               note_number_range=NOTE_NUMBER_RANGE, bpm=status["bpm"], px_per_second=PX_PER_SECOND)
 
 
 # TESTING CODE

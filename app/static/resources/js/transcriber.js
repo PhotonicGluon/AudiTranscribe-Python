@@ -8,6 +8,7 @@ const NOTES_FONT_SIZE = 18;  // In px
 
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
+let barsCanvas = $("#bars-canvas");
 let notesCanvas = $("#notes-canvas");
 let spectrogramCanvas = $("#spectrogram-canvas");
 
@@ -22,7 +23,7 @@ function noteNumberToFreq(noteNumber) {
 // Converts a given note number to a human-readable note string
 function noteNumberToNote(noteNumber, key = "C") {
     // Define a list of notes
-    let notes = ["C", ["C#", "Db"], "D", ["D#", "Eb"], "E", "F", ["F#", "Gb"], "G", ["G#", "Ab"], "A", ["A#", "Bb"],
+    let notes = ["C", ["C♯", "D♭"], "D", ["D♯", "E♭"], "E", "F", ["F♯", "G♭"], "G", ["G♯", "A♭"], "A", ["A♯", "B♭"],
         "B"];
 
     // Convert the note number to a note and an octave
@@ -31,7 +32,7 @@ function noteNumberToNote(noteNumber, key = "C") {
 
     // If the note has two or more elements, pick the correct one
     if (Array.isArray(note)) {
-        if (["C", "D", "E", "F#", "Gb", "G", "A", "B"].includes(key)) {
+        if (["C", "D", "E", "F♯", "G♭", "G", "A", "B"].includes(key)) {
             note = note[0];  // Take the first element
         } else {
             note = note[1];  // Take the second element
@@ -59,6 +60,11 @@ function getHeightDifference() {
     return SPECTROGRAM.height / (NOTE_NUMBER_RANGE[1] - NOTE_NUMBER_RANGE[0]);
 }
 
+// Convert BPM to seconds per beat
+function secondsPerBeat() {
+    return 1 / (BPM / 60);  // BPM / 60 = Beats per second, so 1 / Beats Per Second = Seconds per Beat
+}
+
 // MAIN FUNCTIONS
 $(document).ready(() => {
     // Check the status ID
@@ -66,7 +72,7 @@ $(document).ready(() => {
         // Create the progress bar
         spectrogramProgressBar.progressbar({
             value: 0  // Will be updated later
-        })
+        });
 
         // Start an interval checking the progress every `CHECK_STATUS_INTERVAL` seconds
         let spectrogramProgressInterval = setInterval(() => {
@@ -96,6 +102,7 @@ $(document).ready(() => {
         }, CHECK_STATUS_INTERVAL * 1000);  // In ms
     } else {  // Spectrogram generated
         // Get contexts for canvases
+        let barsCtx = barsCanvas[0].getContext("2d");
         let notesCtx = notesCanvas[0].getContext("2d");
         let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
 
@@ -105,6 +112,9 @@ $(document).ready(() => {
             document.body.style.width = `${SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X}px`;
 
             // Resize the canvases to fit the image
+            barsCanvas[0].width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
+            barsCanvas[0].height = barsCanvas.parent().height();
+
             notesCanvas[0].width = NOTES_CANVAS_WIDTH;
             notesCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
@@ -156,6 +166,22 @@ $(document).ready(() => {
                     NOTES_CANVAS_WIDTH / 2,
                     heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE  // Apparently 3/8 works???
                 );
+            }
+
+            // Add lines for every beat
+            let numBeats = Math.ceil(BPM / 60 * (SPECTROGRAM.width / PX_PER_SECOND));  // `numBeats`is a whole number
+
+            for (let i = 1; i <= numBeats; i++) {  // Start at 1 because starting at 0 will draw a line through the axis
+                // Calculate position to place the beat
+                let pos = i * secondsPerBeat() * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+
+                // Draw the beat line on the bars context
+                barsCtx.setLineDash([5, 5]);  // Solid for 5, blank for 5
+                barsCtx.moveTo(pos, 0);
+                barsCtx.lineTo(pos, spectrogramCanvas[0].height);
+                barsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change colour
+                barsCtx.lineWidth = 1;
+                barsCtx.stroke();
             }
 
             // Todo: add the other utilities

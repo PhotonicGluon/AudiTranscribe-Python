@@ -4,3 +4,4 @@ Todo:
         - Make the "frequency resolution" higher
     - Allow playing of audio along with the spectrogram
     - Fix clicking "back" on the website causing the file to be re-uploaded
+    - Make it easier to get back to a transcription page with a UUID

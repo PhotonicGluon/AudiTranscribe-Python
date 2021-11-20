@@ -1,4 +1,10 @@
 /* CLASS-BASED STYLING */
+.bars-area {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+}
+
 .main-menu-div {
     display: table-cell;
     vertical-align: top;
@@ -46,7 +52,7 @@
     color: white;
 }
 
-.transcription-area {
+.main-area {
     background: gray;  /* Todo: remove this colour */
     display: table-row;
 }
@@ -57,7 +63,11 @@
     left: 0;
 }
 
-.spectrogram {
+.spectrogram-area {
+
+}
+
+.transcription-area {
     overflow: scroll;
     display: table-cell;
 }

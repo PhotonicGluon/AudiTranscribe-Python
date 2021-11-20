@@ -18,7 +18,12 @@
     </script>
     {% if spectrogram_generated %}
         <script>
+            // Standard constants
+            const BPM = {{ bpm }};
             const NOTE_NUMBER_RANGE = {{ note_number_range }};
+            const PX_PER_SECOND = {{ px_per_second }};
+
+            // Spectrogram image
             const SPECTROGRAM = new Image();
             SPECTROGRAM.src = `/media/${UUID}/{{ spectrogram }}`;
         </script>
@@ -34,7 +39,7 @@
             </div>
         </div>
     {% else %}
-        <div class="transcription-area" id="transcription-area">
+        <div class="main-area">
             <div class="sidebar">
                 <div class="main-menu-div">
                     <div class="main-menu">
@@ -46,9 +51,14 @@
                     <canvas id="notes-canvas"></canvas>
                 </div>
             </div>
-            <div class="spectrogram" id="spectrogram-area">
-                <!-- Todo: fix annoying gray bar at the bottom of the canvas -->
-                <canvas id="spectrogram-canvas"></canvas>
+            <div class="transcription-area">
+                <div class="bars-area">
+                    <canvas id="bars-canvas"></canvas>
+                </div>
+                <div class="spectrogram-area">
+                    <!-- Todo: fix annoying gray bar at the bottom of the canvas -->
+                    <canvas id="spectrogram-canvas"></canvas>
+                </div>
             </div>
         </div>
     {% endif %}
