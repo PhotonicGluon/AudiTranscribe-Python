@@ -81,21 +81,21 @@ def processing_file(file: str, uuid: str, progress: list):
     # Now split the WAV file into samples
     samples, sample_rate = wav_to_samples(file_wav)
 
+    # Calculate the duration of the audio
+    duration = get_audio_length(samples, sample_rate)
+
     # Convert the samples into a spectrogram
     spectrogram, frequencies, times = wav_samples_to_spectrogram(sample_rate, samples)
 
     # Convert the spectrogram data into a spectrogram image
-    image = generate_spectrogram_img(spectrogram, frequencies, times, progress=progress, px_per_second=PX_PER_SECOND,
-                                     img_height=SPECTROGRAM_HEIGHT)
+    image = generate_spectrogram_img(spectrogram, frequencies, times, duration, progress=progress,
+                                     px_per_second=PX_PER_SECOND, img_height=SPECTROGRAM_HEIGHT)
 
     # Save the image
     image.save(os.path.join(folder_path, f"{filename}.png"))
 
     # Estimate the BPM of the sample
     bpm = int(estimate_bpm(samples, sample_rate)[0])  # Todo: support dynamic BPM
-
-    # Calculate the duration of the audio
-    duration = get_audio_length(samples, sample_rate)
 
     # Update status file
     update_status_file(

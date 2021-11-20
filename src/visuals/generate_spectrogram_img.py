@@ -23,7 +23,7 @@ from src.misc import NOTE_NUMBER_RANGE, note_number_to_freq
 
 
 # FUNCTIONS
-def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, times: np.ndarray,
+def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, times: np.ndarray, duration: float,
                              progress: Optional[list] = None, batch_size: int = 100, px_per_second: int = 50,
                              img_height=720, dpi: float = 100.) -> Image.Image:
     """
@@ -38,6 +38,9 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         times:
             Array of sample times.
+
+        duration:
+            Duration of the audio sample. This is in seconds.
 
         progress:
             List object to share the spectrogram processing process with other threads.
@@ -125,7 +128,6 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         # Open the image buffer in Pillow
         img = Image.open(img_buf)
-        # img.show()
 
         # Append the generated image to the list of all images
         images.append(img)
@@ -147,6 +149,9 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
         final_img.paste(img, box=(curr_length, 0))  # Note that the uppermost edge is 0
         curr_length += img.width
 
+    # Now resize the image to fit the duration
+    final_img = final_img.resize((round(duration * px_per_second), img_height))
+
     # Return the pillow image
     return final_img
 
@@ -154,7 +159,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 # TESTING CODE
 if __name__ == "__main__":
     # Imports
-    from src.audio import wav_samples_to_spectrogram
+    from src.audio import wav_samples_to_spectrogram, get_audio_length
     from src.io import wav_to_samples
 
     # Read the testing WAV file
@@ -163,6 +168,11 @@ if __name__ == "__main__":
     # Convert to spectrogram
     spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
 
-    # Display spectrogram
-    image = generate_spectrogram_img(spec, freq, time)
+    # Calculate the duration of the audio file
+    duration_ = get_audio_length(samples_, sample_rate_)
+
+    # Generate spectrogram
+    image = generate_spectrogram_img(spec, freq, time, duration_)
+
+    # Display it
     image.show(title="Spectrogram Image")

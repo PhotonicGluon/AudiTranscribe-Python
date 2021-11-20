@@ -4,7 +4,7 @@ const SPECTROGRAM_ZOOM_SCALE_X = 3;  // How much to zoom in along the x-axis?
 const SPECTROGRAM_ZOOM_SCALE_Y = 5;  // How much to zoom in along the y-axis?
 
 const NOTES_CANVAS_WIDTH = 50;  // In px
-const NOTES_FONT_SIZE = 18;  // In px
+const NOTES_FONT_SIZE = 14;  // In pt
 
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
@@ -158,13 +158,13 @@ $(document).ready(() => {
 
                 // Center align the text on the correct row
                 // Todo: fix the C0 and B9 going off screen
-                notesCtx.font = `${NOTES_FONT_SIZE}px Arial`;
+                notesCtx.font = `${NOTES_FONT_SIZE}pt Arial`;
                 notesCtx.textAlign = "center";
                 notesCtx.fillStyle = "#000000";
                 notesCtx.fillText(
                     note,
                     NOTES_CANVAS_WIDTH / 2,
-                    heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE  // Apparently 3/8 works???
+                    heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE * 4/3  // 4/3 convert pt -> px
                 );
             }
 
@@ -175,7 +175,6 @@ $(document).ready(() => {
             for (let i = 1; i <= numBeats; i++) {  // Start at 1 because starting at 0 will draw a line through the axis
                 // Calculate position to place the beat
                 let pos = i * secondsPerBeat() * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
-                console.log(pos);
 
                 // Draw the beat line on the bars context
                 barsCtx.setLineDash([5, 5]);

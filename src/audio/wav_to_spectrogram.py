@@ -61,6 +61,7 @@ def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int
     # spectrogram = librosa.feature.melspectrogram(samples, sr=sample_rate)
 
     # Convert the amplitude of the sound to decibels
+    # Todo: perhaps the "loudness" of the pitch is not best conveyed by using this conversion
     spectrogram = librosa.amplitude_to_db(spectrogram, ref=np.max)
 
     # Get the possible frequencies from the spectrogram
