@@ -65,11 +65,15 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
         spectrogram_image
 
     Todo:
-        Spectrogram image's width is still off by ~3 pixels for a 48s audio. How to fix?
+        Spectrogram image's width is still off by ~0.1% for a 48s audio and ~0.2% for a 5s audio. How to fix?
+            - Force resize image to fit duration?
     """
 
     # Get the number of samples
     num_samples = len(times)
+
+    # Assert the batch size is an acceptable value
+    assert batch_size <= num_samples, f"Maximum number of samples is {num_samples}, but batch size is {batch_size}."
 
     # Calculate the number of batches needed
     num_batches = math.ceil(num_samples / batch_size)
@@ -85,7 +89,6 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
     for batch_no in iterable:
         # Get the length of the audio
-
         if batch_no != num_batches - 1:  # Not last batch
             audio_length = times[(batch_no + 1) * batch_size] - times[batch_no * batch_size]
         else:
@@ -98,8 +101,8 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         # Get the times and spectrogram section
         if batch_no != num_batches - 1:  # Not last batch
-            needed_time = times[batch_no * batch_size: (batch_no + 1) * batch_size - 1]
-            needed_spectrogram = spectrogram[:, batch_no * batch_size: (batch_no + 1) * batch_size - 1]
+            needed_time = times[batch_no * batch_size: (batch_no + 1) * batch_size]
+            needed_spectrogram = spectrogram[:, batch_no * batch_size: (batch_no + 1) * batch_size]
         else:
             needed_time = times[(num_batches - 1) * batch_size:]
             needed_spectrogram = spectrogram[:, (num_batches - 1) * batch_size:]
@@ -122,6 +125,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         # Open the image buffer in Pillow
         img = Image.open(img_buf)
+        # img.show()
 
         # Append the generated image to the list of all images
         images.append(img)
