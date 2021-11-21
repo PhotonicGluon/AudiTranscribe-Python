@@ -11,6 +11,8 @@ const NUMBERS_FONT_NAME = "Arial";
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
 
+let topRow = $("#top-row");
+
 let notesArea = $("#notes-area");
 let numbersArea = $("#numbers-area");
 
@@ -137,6 +139,9 @@ $(document).ready(() => {
 
             numbersCanvas[0].width = finalSpectrogramWidth;
             numbersCanvas[0].height = numbersArea[0].clientHeight;
+
+            // Set the height of the rows
+            topRow.height(finalSpectrogramHeight);
 
             // Set the contexts' scale
             spectrogramCtx.scale(SPECTROGRAM_ZOOM_SCALE_X, SPECTROGRAM_ZOOM_SCALE_Y);
