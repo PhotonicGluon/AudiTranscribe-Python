@@ -19,7 +19,7 @@
     {% if spectrogram_generated %}
         <script>
             // Standard constants
-            const BPM = {{ bpm }};
+            const BPM = {{ bpm }};  // Todo: allow modification of BPM using user input
             const DURATION = {{ duration }};
             const NOTE_NUMBER_RANGE = {{ note_number_range }};
             const PX_PER_SECOND = {{ px_per_second }};
@@ -63,7 +63,6 @@
                     <div class="row bottom-row" id="bottom-row">
                         <div class="blank-area"></div>
                         <div class="numbers-area" id="numbers-area">
-                            <span style="vertical-align: top;">Test Text</span>
                             <canvas id="numbers-canvas"></canvas>
                         </div>
                     </div>

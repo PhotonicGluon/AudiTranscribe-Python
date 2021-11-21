@@ -4,14 +4,12 @@ const SPECTROGRAM_ZOOM_SCALE_X = 2;  // How much to zoom in along the x-axis?
 const SPECTROGRAM_ZOOM_SCALE_Y = 5;  // How much to zoom in along the y-axis?
 
 const NOTES_FONT_SIZE = 14;  // In pt
-
-const NUMBERS_CANVAS_HEIGHT = 40;  // In px
 const NUMBERS_FONT_SIZE = 14;  // In pt
+const NOTES_FONT_NAME = "Arial";
+const NUMBERS_FONT_NAME = "Arial";
 
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
-
-let bottomRow = $("#bottom-row");
 
 let notesArea = $("#notes-area");
 let numbersArea = $("#numbers-area");
@@ -70,8 +68,13 @@ function getHeightDifference() {
 }
 
 // Convert BPM to seconds per beat
-function secondsPerBeat() {
-    return 1 / (BPM / 60);  // BPM / 60 = Beats per second, so 1 / Beats Per Second = Seconds per Beat
+function secondsPerBeat(bpm) {
+    return 1 / (bpm / 60);  // BPM / 60 = Beats per second, so 1 / Beats Per Second = Seconds per Beat
+}
+
+// Convert BPM and beats per bar to seconds per bar
+function secondsPerBar(bpm, beatsPerBar) {
+    return secondsPerBeat(bpm) * beatsPerBar;
 }
 
 // MAIN FUNCTIONS
@@ -145,6 +148,10 @@ $(document).ready(() => {
             notesCtx.fillStyle = "#ffffff";
             notesCtx.fillRect(0, 0, notesCanvas[0].width, notesCanvas[0].height);
 
+            // Draw background of numbers area
+            numbersCtx.fillStyle = "#ffffff";
+            numbersCtx.fillRect(0, 0, numbersCanvas[0].width, numbersCanvas[0].height);
+
             // Add lines for every note
             for (let i = NOTE_NUMBER_RANGE[0]; i <= NOTE_NUMBER_RANGE[1]; i++) {
                 // Start a new path
@@ -159,7 +166,8 @@ $(document).ready(() => {
                 // Move the pointer to the correct spot
                 spectrogramCtx.moveTo(
                     0,
-                    heightToMoveTo + getHeightDifference() / 2);  // Make the gap represent the note, not the line
+                    heightToMoveTo + getHeightDifference() / 2   // Make the gap represent the note, not the line
+                );
 
                 // Draw the line
                 spectrogramCtx.lineTo(spectrogramCanvas[0].width, heightToMoveTo + getHeightDifference() / 2);
@@ -172,25 +180,26 @@ $(document).ready(() => {
 
                 // Center align the text on the correct row
                 // Todo: fix the C0 and B9 going off screen
-                notesCtx.font = `${NOTES_FONT_SIZE}pt Arial`;
+                notesCtx.font = `${NOTES_FONT_SIZE}pt ${NOTES_FONT_NAME}`;
                 notesCtx.textAlign = "center";
                 notesCtx.fillStyle = "#000000";
                 notesCtx.fillText(
                     note,
                     notesArea[0].clientWidth / 2,
-                    heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE * 4/3  // 4/3 convert pt -> px
+                    heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
                 );
             }
 
-            // Add lines for every beat
-            // Todo: add other beat stuff
-            // Todo: allow user to set initial beat offset
-            // Todo: allow BPM changing
+            // Calculate the number of beats and the number of bars
             let numBeats = Math.ceil(BPM / 60 * DURATION);  // `numBeats`is a whole number
+            let numBars = Math.floor(numBeats / 4);  // Todo: allow time signature changing from 4/4 time to any other time
 
-            for (let i = 0; i <= numBeats; i++) {
+            // Add lines for every beat
+            // Todo: allow user to set initial beat/bar offset
+            for (let beatNum = 0; beatNum <= numBeats; beatNum++) {
                 // Calculate position to place the beat
-                let pos = i * secondsPerBeat() * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+                // Todo: allow BPM changing
+                let pos = beatNum * secondsPerBeat(BPM) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
 
                 // Draw the beat line on the bars context
                 // Todo: fix some lines looking more opaque than others
@@ -200,6 +209,39 @@ $(document).ready(() => {
                 barsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change the colour
                 barsCtx.lineWidth = 1;
                 barsCtx.stroke();
+            }
+
+            // Add numbers for every bar
+            // Todo: allow user to set initial beat/bar offset
+            // Todo: allow time signature changing
+            for (let barNum = 1; barNum <= numBars; barNum++) {
+                // Calculate position to place the bar number label
+                // Todo: allow BPM changing
+                // Todo: allow time signature changing from 4/4 time to any other time
+                let pos = (barNum - 1) * secondsPerBar(BPM, 4) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+
+                // Draw an ellipse
+                numbersCtx.beginPath();
+                numbersCtx.ellipse(
+                    pos,
+                    numbersCanvas[0].clientHeight / 2,
+                    20 * SPECTROGRAM_ZOOM_SCALE_X,
+                    20,
+                    0,
+                    0,
+                    2 * Math.PI
+                );
+                numbersCtx.stroke();
+
+                // Add the bar number in the ellipse
+                numbersCtx.font = `${NUMBERS_FONT_SIZE}pt ${NUMBERS_FONT_NAME}`;
+                numbersCtx.textAlign = "center";
+                numbersCtx.fillStyle = "#000000";
+                numbersCtx.fillText(
+                    barNum.toString(),
+                    pos,
+                    numbersCanvas[0].clientHeight / 2 + 3 / 8 * NUMBERS_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
+                );
             }
         }
     }
