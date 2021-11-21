@@ -47,19 +47,26 @@
                     <h3>File: <code>{{ file_name }}</code></h3>
                 </div>
             </div>
+
+            <!-- Todo: fix gray bars which have now reappeared for some reason -->
             <div class="main-area">
                 <div class="transcription-area">
-                    <div class="notes-area" id="notes-area">
-                        <canvas id="notes-canvas"></canvas>
+                    <div class="row top-row" id="top-row">
+                        <div class="notes-area" id="notes-area">
+                            <canvas id="notes-canvas"></canvas>
+                        </div>
+                        <div class="spectrogram-area" id="spectrogram-area">
+                            <canvas id="bars-canvas"></canvas>
+                            <canvas id="spectrogram-canvas"></canvas>
+                        </div>
                     </div>
-                    <div class="spectrogram-area" id="spectrogram-area">
-                        <canvas id="bars-canvas"></canvas>
-                        <canvas id="spectrogram-canvas"></canvas>
+                    <div class="row bottom-row" id="bottom-row">
+                        <div class="blank-area"></div>
+                        <div class="numbers-area" id="numbers-area">
+                            <span style="vertical-align: top;">Test Text</span>
+                            <canvas id="numbers-canvas"></canvas>
+                        </div>
                     </div>
-                </div>
-                <div class="numbers-area">
-                    <span style="vertical-align: top;">Test Text</span>
-                    <canvas id="numbers-canvas" style="height: 100%;"></canvas>
                 </div>
             </div>
         </div>

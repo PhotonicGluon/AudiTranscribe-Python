@@ -11,7 +11,10 @@ const NUMBERS_FONT_SIZE = 14;  // In pt
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
 
+let bottomRow = $("#bottom-row");
+
 let notesArea = $("#notes-area");
+let numbersArea = $("#numbers-area");
 
 let barsCanvas = $("#bars-canvas");
 let notesCanvas = $("#notes-canvas");
@@ -115,15 +118,22 @@ $(document).ready(() => {
 
         // Wait till the spectrogram is loaded
         SPECTROGRAM.onload = () => {
+            // Compute the final size of the spectrogram
+            let finalSpectrogramWidth = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
+            let finalSpectrogramHeight = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+
             // Resize the canvases to fit the image
-            barsCanvas[0].width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
-            barsCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+            barsCanvas[0].width = finalSpectrogramWidth;
+            barsCanvas[0].height = finalSpectrogramHeight;
 
             notesCanvas[0].width = notesArea[0].clientWidth;
-            notesCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+            notesCanvas[0].height = finalSpectrogramHeight;
 
-            spectrogramCanvas[0].width = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
-            spectrogramCanvas[0].height = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+            spectrogramCanvas[0].width = finalSpectrogramWidth;
+            spectrogramCanvas[0].height = finalSpectrogramHeight;
+
+            numbersCanvas[0].width = finalSpectrogramWidth;
+            numbersCanvas[0].height = numbersArea[0].clientHeight;
 
             // Set the contexts' scale
             spectrogramCtx.scale(SPECTROGRAM_ZOOM_SCALE_X, SPECTROGRAM_ZOOM_SCALE_Y);

@@ -1,14 +1,68 @@
 /* CLASS-BASED STYLING */
-.main-area {
-    width: 75vw;
-    height: 99vh;  /* Fixme: Make this 100vh (set to 100vh to avoid a scrollbar from appearing) */
-}
-
+/* General Styling */
 .main-page {
     display: flex;
     background: gray;  /* Todo: remove this colour */
 }
 
+.main-area {
+    width: 75vw;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 25vw;
+    height: 100vh;
+}
+
+.transcription-area {
+    height: 100%;
+    overflow: scroll;
+}
+
+/* Row Styling */
+.row {
+    display: flex;
+    width: min-content;
+}
+
+.bottom-row {
+    position: sticky;
+    bottom: 0;
+    height: 50px;
+    z-index: 3;
+    width: min-content;
+}
+
+/* Top Row Styling */
+.notes-area {
+    width: 50px;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+.spectrogram-area {
+    position: relative;
+    width: min-content;
+}
+
+/* Bottom Row Styling */
+.blank-area {
+    position: sticky;
+    left: 0;
+    width: 50px;  /* Width of the notes area */
+    height: 50px;  /* Height of the numbers area */
+    background: white;
+}
+
+.numbers-area {
+    display: block;
+    height: 50px;
+    width: min-content;
+}
+
+/* Sidebar Styling */
 .main-menu {
     width: calc(25vw - 5px);  /* Account for the border */
     height: 100vh;
@@ -22,19 +76,7 @@
     text-align: center;
 }
 
-.notes-area {
-    width: 50px;
-    position: sticky;
-    left: 0;
-    z-index: 2;
-}
-
-.numbers-area {
-    display: block;
-    width: 100%;
-    height: 50px;
-}
-
+/* Overlay Styling */
 .overlay {
     background-image: url(../img/header_background.png);
     background-size: cover;
@@ -56,22 +98,6 @@
     padding: 10px;
     text-align: center;
     color: white;
-}
-
-.sidebar {
-    width: 25vw;
-    height: 100vh;
-}
-
-.spectrogram-area {
-    position: relative;
-    width: calc(100% - 50px);
-}
-
-.transcription-area {
-    display: flex;
-    height: calc(100% - 50px);
-    overflow: scroll;
 }
 
 .ui-widget-header {
