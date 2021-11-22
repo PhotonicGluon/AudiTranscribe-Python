@@ -3,6 +3,3 @@ Todo:
     - Allow playing of audio along with the spectrogram
     - Make it easier to get back to a transcription page with a UUID
         - A save file, maybe?
-
-Fixme:
-    - Fix clicking "back" on the website causing the file to be re-uploaded
