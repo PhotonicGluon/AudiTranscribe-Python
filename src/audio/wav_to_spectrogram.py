@@ -2,7 +2,7 @@
 wav_to_spectrogram.py
 
 Created on 2021-11-14
-Updated on 2021-11-20
+Updated on 2021-11-22
 
 Copyright © Ryan Kan
 
@@ -17,8 +17,8 @@ import numpy as np
 
 
 # FUNCTIONS
-def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int = 8192,
-                               hop_length: int = 512) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int = 16384,
+                               hop_length: int = 1024) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Converts the samples of a WAV file into a spectrogram-like object.
 
@@ -33,13 +33,13 @@ def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int
             Length of the windowed signal after padding with zeros. This partially controls the frequency-resolution of
             the STFT (higher `n_fft` -> higher frequency-resolution). See
             https://librosa.org/doc/main/generated/librosa.stft.html for more information.
-            (Default: 8192)
+            (Default: 16384)
 
         hop_length:
             Number of audio samples between adjacent STFT columns. This partially controls the time-resolution of the
             STFT (higher `hop_length` -> lower time-resolution). See
             https://librosa.org/doc/main/generated/librosa.stft.html for more information.
-            (Default: 512)
+            (Default: 1024)
 
     Returns:
         spectrogram:

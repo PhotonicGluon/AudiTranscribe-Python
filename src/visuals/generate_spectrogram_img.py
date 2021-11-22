@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-11-20
+Updated on 2021-11-22
 
 Copyright © Ryan Kan
 
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     duration_ = get_audio_length(samples_, sample_rate_)
 
     # Generate spectrogram
-    image = generate_spectrogram_img(spec, freq, time, duration_, px_per_second=100)
+    image = generate_spectrogram_img(spec, freq, time, duration_, batch_size=25, px_per_second=100)
 
     # Display it
     image.show(title="Spectrogram Image")

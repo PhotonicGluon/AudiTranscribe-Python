@@ -32,6 +32,7 @@ MAX_AUDIO_FILE_SIZE = {"Value": 10 ** 7, "Name": "10 MB"}
 ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()]
 
 # Spectrogram settings
+BATCH_SIZE = 25
 PX_PER_SECOND = 100  # Number of pixels of the spectrogram dedicated to each second of audio
 SPECTROGRAM_HEIGHT = 720  # Height of the spectrogram, in pixels
 
@@ -93,7 +94,7 @@ def processing_file(file: str, uuid: str, progress: list):
 
     # Convert the spectrogram data into a spectrogram image
     image = generate_spectrogram_img(spectrogram, frequencies, times, duration, progress=progress,
-                                     px_per_second=PX_PER_SECOND, img_height=SPECTROGRAM_HEIGHT)
+                                     batch_size=BATCH_SIZE, px_per_second=PX_PER_SECOND, img_height=SPECTROGRAM_HEIGHT)
 
     # Save the image
     image.save(os.path.join(folder_path, f"{filename}.png"))
