@@ -116,6 +116,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
             frequencies,  # Want ALL the frequencies
             needed_spectrogram,
             shading="gouraud",
+            cmap="plasma"
         )
 
         # Save the spectrogram to the image buffer
@@ -159,7 +160,7 @@ if __name__ == "__main__":
     from src.io import wav_to_samples
 
     # Read the testing WAV file
-    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Melancholy.wav")
+    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Increments.wav")
 
     # Convert to spectrogram
     spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)

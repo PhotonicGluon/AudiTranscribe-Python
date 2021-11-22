@@ -134,7 +134,6 @@ function drawBeatsLines() {
 
     // Calculate the number of beats and the number of bars
     let numBeats = Math.ceil(bpm / 60 * DURATION);  // `numBeats`is a whole number
-    console.log(numBeats);
 
     // Add lines for every beat
     for (let beatNum = 0; beatNum <= numBeats; beatNum++) {
@@ -144,10 +143,9 @@ function drawBeatsLines() {
 
         // Draw the beat line on the beats canvas
         beatsCtx.beginPath();
-        beatsCtx.setLineDash([5, 5]);
         beatsCtx.moveTo(pos, 0);
         beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
-        beatsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change the colour
+        beatsCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";
         beatsCtx.lineWidth = 3;
         beatsCtx.stroke();
     }
@@ -193,6 +191,14 @@ function drawBarsNumbersLabels() {
             pos,
             numbersCanvas[0].clientHeight / 2 + 3 / 8 * NUMBERS_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
         );
+
+        // Add the different coloured line on the beats canvas
+        beatsCtx.beginPath();
+        beatsCtx.moveTo(pos, 0);
+        beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
+        beatsCtx.strokeStyle = "rgba(0, 256, 0, 0.5)";  // Green with 50% opacity
+        beatsCtx.lineWidth = 3;
+        beatsCtx.stroke();
     }
 }
 
