@@ -12,6 +12,7 @@
 {% block header_scripts %}
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"
             integrity="sha256-hlKLmzaRlE8SCJC1Kw8zoUbU8BxA+8kR3gseuKfMjxA=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='vendors/js/audiosynth.js') }}"></script>
     <script>
         const SPECTROGRAM_GENERATED = {{ spectrogram_generated|lower }};  // Lowered because JS's booleans are lowercase
         const UUID = "{{ uuid }}";

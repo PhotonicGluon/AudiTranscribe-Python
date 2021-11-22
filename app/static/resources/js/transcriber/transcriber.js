@@ -7,6 +7,8 @@ const NUMBERS_FONT_SIZE = 14;  // In pt
 const NOTES_FONT_NAME = "Arial";
 const NUMBERS_FONT_NAME = "Arial";
 
+const PIANO_VOLUME = 0.25;  // As a number in the interval [0, 1]
+
 // GET ELEMENTS
 // Input fields
 let beatsOffsetInput = $("#beats-offset-input");
@@ -40,12 +42,22 @@ let notesCtx = notesCanvas[0].getContext("2d");
 let numbersCtx = numbersCanvas[0].getContext("2d");
 let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
 
+// Piano
+let pianoSynth = Synth.createInstrument("piano");
+
 // UTILITY FUNCTIONS
 // Converts a given note number to a frequency
 function noteNumberToFreq(noteNumber) {
     // Taken from https://en.wikipedia.org/wiki/Piano_key_frequencies
     // The note number has been shift to ensure that note number 0 is C0, not the key number on a piano
     return Math.pow(2, (noteNumber - 57) / 12) * 440;
+}
+
+// Converts a given frequency to a note number
+function freqToNoteNumber(freq) {
+    // Taken from https://en.wikipedia.org/wiki/Piano_key_frequencies
+    // The note number has been shift to ensure that note number 0 is C0, not the key number on a piano
+    return 12 * Math.log2(freq / 440) + 57;
 }
 
 // Converts a given note number to a human-readable note string
@@ -68,7 +80,7 @@ function noteNumberToNote(noteNumber, key = "C") {
     }
 
     // Return the note with the octave
-    return note + octave
+    return {note: note, octave: octave}
 }
 
 // Converts a given frequency to a height on the canvas
@@ -81,6 +93,19 @@ function freqToHeight(freq) {
     // Scale accordingly and return. Since (0, 0) is the upper left we have to adjust to make (0, 0) to be the lower
     // left corner instead
     return (1 - (loggedFrequency - loggedMinimum) / (loggedMaximum - loggedMinimum)) * SPECTROGRAM.height;
+}
+
+// Converts a given height on the canvas to a frequency
+function heightToFreq(height) {
+    // Get minimum and maximum frequencies
+    let minimumFreq = noteNumberToFreq(NOTE_NUMBER_RANGE[0]);
+    let maximumFreq = noteNumberToFreq(NOTE_NUMBER_RANGE[1]);
+
+    // Compute the ratio of the given height and the spectrogram's height
+    let heightRatio = height / SPECTROGRAM.height;
+
+    // Return the estimated frequency
+    return Math.pow(minimumFreq, heightRatio) * Math.pow(maximumFreq, 1 - heightRatio);
 }
 
 // Gets the height difference between two adjacent notes
@@ -121,7 +146,7 @@ function drawNotesLabels() {
         notesCtx.textAlign = "center";
         notesCtx.fillStyle = "#000000";
         notesCtx.fillText(
-            note,
+            note["note"] + note["octave"],
             notesArea[0].clientWidth / 2,
             heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
         );
@@ -257,6 +282,29 @@ musicKeyInput.change(() => {
     }
 });
 
+// Called when the canvas is clicked
+beatsCanvas.click((evt) => {
+    // Get the position which the mouse clicked
+    let rect = beatsCanvas[0].getBoundingClientRect();  // Absolute size of the beats canvas
+    let xPos = (evt.clientX - rect.left) / SPECTROGRAM_ZOOM_SCALE_X;  // Make it according to the base width
+    let yPos = (evt.clientY - rect.top) / SPECTROGRAM_ZOOM_SCALE_Y;  // Make it according to the base height
+
+    // Compute the frequency that the mouse click would correspond to
+    let estimatedFrequency = heightToFreq(yPos);
+
+    // Now estimate the note number
+    let estimatedNoteNumber = Math.round(freqToNoteNumber(estimatedFrequency));
+
+    // Convert the note number to a note
+    let note = noteNumberToNote(estimatedNoteNumber, "C");
+
+    // Convert any sharps to a hashtag
+    note["note"] = note["note"].replace("♯", "#");
+
+    // Play the note
+    pianoSynth.play(note["note"], note["octave"], 1);  // Plays for 1s using
+});
+
 // Called when the document has been loaded
 $(document).ready(() => {
     // Set the range for the input fields
@@ -265,6 +313,9 @@ $(document).ready(() => {
 
     bpmInput.attr("min", BPM_RANGE[0]);
     bpmInput.attr("max", BPM_RANGE[1]);
+
+    // Set piano synthesiser's volume
+    Synth.setVolume(PIANO_VOLUME);
 
     // Wait till the spectrogram is loaded
     SPECTROGRAM.onload = () => {

@@ -1,5 +1,6 @@
 Todo:
     - Make clicking on the same row as a note to play that note
+        - Animate the notes canvas?
     - Allow playing of audio along with the spectrogram
     - Make it easier to get back to a transcription page with a UUID
         - A save file, maybe?
