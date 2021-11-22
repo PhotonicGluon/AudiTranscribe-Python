@@ -17,7 +17,7 @@ from collections import defaultdict
 from uuid import uuid4
 
 import yaml
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, send_from_directory, abort
 from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 
@@ -29,7 +29,7 @@ from src.visuals import generate_spectrogram_img
 # CONSTANTS
 # File constants
 MAX_AUDIO_FILE_SIZE = {"Value": 10 ** 7, "Name": "10 MB"}
-ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()]
+ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()] + ["AUTR"]
 
 # Spectrogram settings
 BATCH_SIZE = 25
@@ -148,6 +148,47 @@ def send_media(uuid, path):
 
 
 # API PAGES
+@app.route("/api/get-project-file/<uuid>", methods=["GET"])
+def get_project_file(uuid):
+    # Generate the UUID's folder's path
+    folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
+
+    # Check if a folder with that UUID exists
+    if not os.path.isdir(folder_path):
+        return abort(404)
+
+    # Read the status file
+    with open(os.path.join(folder_path, "status.yaml"), "r") as f:
+        status = yaml.load(f, yaml.Loader)
+
+    # Send the status file
+    return send_file(os.path.join("..", folder_path, "status.yaml"),
+                     download_name=os.path.splitext(status["audio_file_name"])[0] + ".autr")
+
+
+@app.route("/api/query-process/<uuid>", methods=["POST"])
+def query_process(uuid):
+    # Get the progress associated with that UUID
+    progress = progressOfSpectrograms[uuid]
+
+    # Check if the progress exists
+    if progress:
+        # Get the latest value in the progress
+        if progress[0] is None:  # Nothing processed yet
+            batch_no = 0
+            num_batches = 100  # Assume 100 batches
+        else:
+            batch_no, num_batches = progress[0]
+
+        # Calculate the progress percentage
+        progress_percentage = int(batch_no / num_batches * 100)  # As a number in the interval [0, 100]
+
+        # Return the progress values
+        return json.dumps({"Progress": progress_percentage})
+    else:  # The progress has been used and completed
+        return json.dumps({"Progress": 100})
+
+
 @app.route("/api/upload-file", methods=["POST"])
 def upload_file():
     # Check if the request has the file
@@ -168,7 +209,22 @@ def upload_file():
             "msg": f"File does not have correct format. Accepted: {', '.join(ACCEPTED_FILE_TYPES)}."
         })
 
-    # Create a folder for this specific audio
+    # Check if this is an existing project file
+    if os.path.splitext(file.filename)[-1].upper() == ".AUTR":
+        # Read the contents of the .autr file as an YAML file
+        existing_project = yaml.load(file.stream, yaml.Loader)
+
+        # Get the UUID
+        existing_uuid = existing_project["uuid"]
+
+        # Provide the link to the existing page
+        return json.dumps({
+            "outcome": "ok",
+            "msg": "Redirecting to existing project.",
+            "url": url_for("transcriber", uuid=existing_uuid)
+        })
+
+    # If it is not an existing project, create a folder for this specific audio
     while True:
         # Generate a UUID for the file
         uuid = str(uuid4())
@@ -218,29 +274,6 @@ def upload_file():
         "msg": "Upload successful. Redirecting.",
         "url": url_for("transcriber", uuid=uuid)
     })
-
-
-@app.route("/api/query-process/<uuid>", methods=["POST"])
-def query_process(uuid):
-    # Get the progress associated with that UUID
-    progress = progressOfSpectrograms[uuid]
-
-    # Check if the progress exists
-    if progress:
-        # Get the latest value in the progress
-        if progress[0] is None:  # Nothing processed yet
-            batch_no = 0
-            num_batches = 100  # Assume 100 batches
-        else:
-            batch_no, num_batches = progress[0]
-
-        # Calculate the progress percentage
-        progress_percentage = int(batch_no / num_batches * 100)  # As a number in the interval [0, 100]
-
-        # Return the progress values
-        return json.dumps({"Progress": progress_percentage})
-    else:  # The progress has been used and completed
-        return json.dumps({"Progress": 100})
 
 
 # WEBSITE PAGES

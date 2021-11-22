@@ -38,6 +38,7 @@ h1 {
 
 h2 {
     margin-top: 8px;
+    margin-bottom: 1px;
 }
 
 /* Header Styling */
@@ -99,7 +100,7 @@ input[type="file"] {
     display: none;
 }
 
-.upload-button {
+.button {
     border: 0;
     width: 300px;
     padding: 10px 0;
@@ -108,13 +109,19 @@ input[type="file"] {
     border-radius: 5px;
     color: white;
     display: inline-block;
-    background-color: #209bed;
     font-weight: bold;
+}
+
+.button:hover {
+    cursor: pointer;
+}
+
+.upload-button {
+    background-color: #209bed;
 }
 
 .upload-button:hover {
     background-color: #0079cb;
-    cursor: pointer;
 }
 
 .error-text {
