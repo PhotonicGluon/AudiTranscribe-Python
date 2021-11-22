@@ -169,7 +169,6 @@ footer a {
     .main-nav {
         float: left;
         margin-top: 40px;
-        /*margin-left: 25px;*/ /* Todo: see if this is needed or not */
     }
 
     .main-nav li {

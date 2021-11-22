@@ -9,19 +9,42 @@ const NOTES_FONT_NAME = "Arial";
 const NUMBERS_FONT_NAME = "Arial";
 
 // GET ELEMENTS
+// Overlay elements
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
 
+// Input fields
+let beatsOffsetInput = $("#beats-offset-input");
+let beatsPerBarInput = $("#beats-per-bar-input");
+let bpmInput = $("#bpm-input");
+let musicKeyInput = $("#music-key-input");
+
+// Rows
 let topRow = $("#top-row");
 
+// Areas
 let notesArea = $("#notes-area");
 let numbersArea = $("#numbers-area");
 
-let barsCanvas = $("#bars-canvas");
+// Canvases
+let beatsCanvas = $("#beats-canvas");
 let notesCanvas = $("#notes-canvas");
 let numbersCanvas = $("#numbers-canvas");
 let spectrogramCanvas = $("#spectrogram-canvas");
 
-// HELPER FUNCTIONS
+// GLOBAL VARIABLES
+// Settings
+let beatsOffset = 0;  // In seconds
+let beatsPerBar = 4;
+let bpm = BPM;
+let musicKey = "C";
+
+// Contexts for canvases
+let beatsCtx = beatsCanvas[0].getContext("2d");
+let notesCtx = notesCanvas[0].getContext("2d");
+let numbersCtx = numbersCanvas[0].getContext("2d");
+let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
+
+// UTILITY FUNCTIONS
 // Converts a given note number to a frequency
 function noteNumberToFreq(noteNumber) {
     // Taken from https://en.wikipedia.org/wiki/Piano_key_frequencies
@@ -79,7 +102,160 @@ function secondsPerBar(bpm, beatsPerBar) {
     return secondsPerBeat(bpm) * beatsPerBar;
 }
 
+// HELPER FUNCTIONS
+function drawNotesLabels() {
+    // Clear context
+    notesCtx.clearRect(0, 0, notesCanvas[0].width, notesCanvas[0].height);
+
+    // Draw background of notes area
+    notesCtx.fillStyle = "#ffffff";
+    notesCtx.fillRect(0, 0, notesCanvas[0].width, notesCanvas[0].height);
+
+    // Add new notes
+    for (let i = NOTE_NUMBER_RANGE[0]; i <= NOTE_NUMBER_RANGE[1]; i++) {
+        // Get the note's text
+        let note = noteNumberToNote(i, musicKey);
+
+        // Calculate the height to move the pointer to
+        let heightToMoveTo = freqToHeight(noteNumberToFreq(i));
+
+        // Center align the text on the correct row
+        // Todo: fix the C0 and B9 going off screen
+        notesCtx.font = `${NOTES_FONT_SIZE}pt ${NOTES_FONT_NAME}`;
+        notesCtx.textAlign = "center";
+        notesCtx.fillStyle = "#000000";
+        notesCtx.fillText(
+            note,
+            notesArea[0].clientWidth / 2,
+            heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
+        );
+    }
+}
+
+function drawBeatsLines() {
+    // Clear context
+    beatsCtx.clearRect(0, 0, beatsCanvas[0].width, beatsCanvas[0].height);
+
+    // Calculate the number of beats and the number of bars
+    let numBeats = Math.ceil(bpm / 60 * DURATION);  // `numBeats`is a whole number
+    console.log(numBeats);
+
+    // Add lines for every beat
+    for (let beatNum = 0; beatNum <= numBeats; beatNum++) {
+        // Calculate position to place the beat
+        let pos = beatsOffset * PX_PER_SECOND +
+            beatNum * secondsPerBeat(bpm) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+
+        // Draw the beat line on the beats canvas
+        beatsCtx.beginPath();
+        beatsCtx.setLineDash([5, 5]);
+        beatsCtx.moveTo(pos, 0);
+        beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
+        beatsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change the colour
+        beatsCtx.lineWidth = 3;
+        beatsCtx.stroke();
+    }
+}
+
+function drawBarsNumbersLabels() {
+    // Clear context
+    numbersCtx.clearRect(0, 0, numbersCanvas[0].width, numbersCanvas[0].height);
+
+    // Draw background of numbers area
+    numbersCtx.fillStyle = "#ffffff";
+    numbersCtx.fillRect(0, 0, numbersCanvas[0].width, numbersCanvas[0].height);
+
+    // Calculate the number of number of bars
+    let numBeats = Math.ceil(bpm / 60 * DURATION);  // `numBeats`is a whole number
+    let numBars = Math.floor(numBeats / beatsPerBar) + 1;
+
+    // Add numbers' labels
+    for (let barNum = 1; barNum <= numBars; barNum++) {
+        // Calculate position to place the bar number label
+        let pos = beatsOffset * PX_PER_SECOND +
+            (barNum - 1) * secondsPerBar(bpm, beatsPerBar) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+
+        // Draw an ellipse
+        numbersCtx.beginPath();
+        numbersCtx.ellipse(
+            pos,
+            numbersCanvas[0].clientHeight / 2,
+            20 * SPECTROGRAM_ZOOM_SCALE_X,
+            20,
+            0,
+            0,
+            2 * Math.PI
+        );
+        numbersCtx.stroke();
+
+        // Add the bar number in the ellipse
+        numbersCtx.font = `${NUMBERS_FONT_SIZE}pt ${NUMBERS_FONT_NAME}`;
+        numbersCtx.textAlign = "center";
+        numbersCtx.fillStyle = "#000000";
+        numbersCtx.fillText(
+            barNum.toString(),
+            pos,
+            numbersCanvas[0].clientHeight / 2 + 3 / 8 * NUMBERS_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
+        );
+    }
+}
+
 // MAIN FUNCTIONS
+// Called when the beats offset input changes
+beatsOffsetInput.change(() => {
+    // Update value if and only if it is valid
+    if (beatsOffsetInput[0].checkValidity()) {
+        // Update the existing beats offset value
+        beatsOffset = parseFloat(beatsOffsetInput.val());
+
+        // Draw the new beats lines
+        drawBeatsLines();
+
+        // Draw the new bars numbers labels
+        drawBarsNumbersLabels();
+    }
+});
+
+// Called when the beats per bar input changes
+beatsPerBarInput.change(() => {
+    // Update value if and only if it is valid
+    if (beatsPerBarInput[0].checkValidity()) {
+        // Update the existing beats per bar value
+        beatsPerBar = parseInt(beatsPerBarInput.val());
+
+        // Draw the new bars numbers labels
+        drawBarsNumbersLabels();
+    }
+});
+
+// Called when the BPM input changes
+bpmInput.change(() => {
+    // Update value if and only if it is valid
+    if (bpmInput[0].checkValidity()) {
+        // Update the existing BPM value
+        bpm = parseInt(bpmInput.val());
+
+        // Draw the new beats lines
+        drawBeatsLines();
+
+        // Draw the new bars numbers labels
+        drawBarsNumbersLabels();
+    }
+});
+
+// Called when the music key changes
+musicKeyInput.change(() => {
+    // Update value if and only if it is valid
+    if (musicKeyInput[0].checkValidity()) {
+        // Update the existing music key
+        musicKey = musicKeyInput.val();
+
+        // Draw the new notes' labels
+        drawNotesLabels();
+    }
+});
+
+// Called when the document has been loaded
 $(document).ready(() => {
     // Check the status ID
     if (!SPECTROGRAM_GENERATED) {
@@ -113,13 +289,14 @@ $(document).ready(() => {
                     location.reload();
                 }
             });
-        }, CHECK_STATUS_INTERVAL * 1000);  // In ms
+        }, CHECK_STATUS_INTERVAL * 1000);  // Convert seconds to milliseconds
     } else {  // Spectrogram generated
-        // Get contexts for canvases
-        let barsCtx = barsCanvas[0].getContext("2d");
-        let notesCtx = notesCanvas[0].getContext("2d");
-        let numbersCtx = numbersCanvas[0].getContext("2d");
-        let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
+        // Set the range for the input fields
+        beatsPerBarInput.attr("min", BEATS_PER_BAR_RANGE[0]);
+        beatsPerBarInput.attr("max", BEATS_PER_BAR_RANGE[1]);
+
+        bpmInput.attr("min", BPM_RANGE[0]);
+        bpmInput.attr("max", BPM_RANGE[1]);
 
         // Wait till the spectrogram is loaded
         SPECTROGRAM.onload = () => {
@@ -128,8 +305,8 @@ $(document).ready(() => {
             let finalSpectrogramHeight = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
             // Resize the canvases to fit the image
-            barsCanvas[0].width = finalSpectrogramWidth;
-            barsCanvas[0].height = finalSpectrogramHeight;
+            beatsCanvas[0].width = finalSpectrogramWidth;
+            beatsCanvas[0].height = finalSpectrogramHeight;
 
             notesCanvas[0].width = notesArea[0].clientWidth;
             notesCanvas[0].height = finalSpectrogramHeight;
@@ -149,21 +326,17 @@ $(document).ready(() => {
             // Draw image to the canvas
             spectrogramCtx.drawImage(SPECTROGRAM, 0, 0);
 
-            // Draw background of notes area
-            notesCtx.fillStyle = "#ffffff";
-            notesCtx.fillRect(0, 0, notesCanvas[0].width, notesCanvas[0].height);
-
-            // Draw background of numbers area
-            numbersCtx.fillStyle = "#ffffff";
-            numbersCtx.fillRect(0, 0, numbersCanvas[0].width, numbersCanvas[0].height);
-
             // Add lines for every note
             for (let i = NOTE_NUMBER_RANGE[0]; i <= NOTE_NUMBER_RANGE[1]; i++) {
                 // Start a new path
                 spectrogramCtx.beginPath();
 
-                // Set the dotted line format
-                spectrogramCtx.setLineDash([5, 3]);  // Solid for 5, blank for 3
+                // Set the line format
+                if (i % 12 !== 0) {  // Not a C note
+                    spectrogramCtx.setLineDash([5, 3]);  // Solid for 5, blank for 3
+                } else {
+                    spectrogramCtx.setLineDash([1, 0]);  // Solid for 1, blank for 0
+                }
 
                 // Calculate the height to move the pointer to
                 let heightToMoveTo = freqToHeight(noteNumberToFreq(i));
@@ -179,75 +352,19 @@ $(document).ready(() => {
                 spectrogramCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";  // White with 50% opacity
                 spectrogramCtx.lineWidth = 1;
                 spectrogramCtx.stroke();
-
-                // Get the note's text
-                let note = noteNumberToNote(i);  // Todo: allow changing of the key
-
-                // Center align the text on the correct row
-                // Todo: fix the C0 and B9 going off screen
-                notesCtx.font = `${NOTES_FONT_SIZE}pt ${NOTES_FONT_NAME}`;
-                notesCtx.textAlign = "center";
-                notesCtx.fillStyle = "#000000";
-                notesCtx.fillText(
-                    note,
-                    notesArea[0].clientWidth / 2,
-                    heightToMoveTo * SPECTROGRAM_ZOOM_SCALE_Y + 3 / 8 * NOTES_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
-                );
             }
 
-            // Calculate the number of beats and the number of bars
-            let numBeats = Math.ceil(BPM / 60 * DURATION);  // `numBeats`is a whole number
-            let numBars = Math.floor(numBeats / 4);  // Todo: allow time signature changing from 4/4 time to any other time
+            // Set the notes' labels
+            drawNotesLabels();
 
             // Add lines for every beat
-            // Todo: allow user to set initial beat/bar offset
-            for (let beatNum = 0; beatNum <= numBeats; beatNum++) {
-                // Calculate position to place the beat
-                // Todo: allow BPM changing
-                let pos = beatNum * secondsPerBeat(BPM) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
-
-                // Draw the beat line on the bars context
-                // Todo: fix some lines looking more opaque than others
-                barsCtx.setLineDash([5, 5]);
-                barsCtx.moveTo(pos, 0);
-                barsCtx.lineTo(pos, spectrogramCanvas[0].height);
-                barsCtx.strokeStyle = "rgba(256, 0, 0, 0.5)";  // Red with 50% opacity; todo: change the colour
-                barsCtx.lineWidth = 1;
-                barsCtx.stroke();
-            }
+            drawBeatsLines();
 
             // Add numbers for every bar
-            // Todo: allow user to set initial beat/bar offset
-            // Todo: allow time signature changing
-            for (let barNum = 1; barNum <= numBars; barNum++) {
-                // Calculate position to place the bar number label
-                // Todo: allow BPM changing
-                // Todo: allow time signature changing from 4/4 time to any other time
-                let pos = (barNum - 1) * secondsPerBar(BPM, 4) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+            drawBarsNumbersLabels();
 
-                // Draw an ellipse
-                numbersCtx.beginPath();
-                numbersCtx.ellipse(
-                    pos,
-                    numbersCanvas[0].clientHeight / 2,
-                    20 * SPECTROGRAM_ZOOM_SCALE_X,
-                    20,
-                    0,
-                    0,
-                    2 * Math.PI
-                );
-                numbersCtx.stroke();
-
-                // Add the bar number in the ellipse
-                numbersCtx.font = `${NUMBERS_FONT_SIZE}pt ${NUMBERS_FONT_NAME}`;
-                numbersCtx.textAlign = "center";
-                numbersCtx.fillStyle = "#000000";
-                numbersCtx.fillText(
-                    barNum.toString(),
-                    pos,
-                    numbersCanvas[0].clientHeight / 2 + 3 / 8 * NUMBERS_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
-                );
-            }
+            // Enable input fields
+            $(".user-input").attr("disabled", false);
         }
     }
 });

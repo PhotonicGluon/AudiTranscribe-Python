@@ -19,10 +19,14 @@
     {% if spectrogram_generated %}
         <script>
             // Standard constants
-            const BPM = {{ bpm }};  // Todo: allow modification of BPM using user input
+            const BPM = {{ bpm }};
             const DURATION = {{ duration }};
-            const NOTE_NUMBER_RANGE = {{ note_number_range }};
             const PX_PER_SECOND = {{ px_per_second }};
+
+            // Ranges
+            const BEATS_PER_BAR_RANGE = {{ beats_per_bar_range }};
+            const BPM_RANGE = {{ bpm_range }};
+            const NOTE_NUMBER_RANGE = {{ note_number_range }};
 
             // Spectrogram image
             const SPECTROGRAM = new Image();
@@ -44,7 +48,53 @@
             <div class="sidebar">
                 <div class="main-menu">
                     <h1>AudiTranscribe</h1>
-                    <h3>File: <code>{{ file_name }}</code></h3>
+                    <h3>
+                        File:
+                        <a href="{{ url_for('send_media', uuid=uuid, path=file_name) }}" download>
+                            <code>{{ file_name }}</code>
+                        </a>
+                    </h3>
+                    <hr>
+                    <h3>Settings</h3>
+                    <div class="section">
+                        <!-- Music key input -->
+                        <div class="section-input">
+                            <label for="music-key-input">Music Key: </label>
+                            <!-- Todo: fix weird spacing between select elements -->
+                            <select class="user-input" name="music-key" id="music-key-input" disabled>
+                                {% for key in music_keys %}
+                                    {% if key == "C" %}
+                                        <option value="C" selected>C</option>
+                                    {% else %}
+                                        <option value="{{ key }}">{{ key }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- BPM input -->
+                        <div class="section-input">
+                            <label for="bpm-input">Beats Per Minute (BPM): </label>
+                            <input class="user-input" type="number" id="bpm-input" value="{{ bpm }}"
+                                   placeholder="{{ bpm }}" disabled>
+                        </div>
+
+                        <!-- Beats per bar input -->
+                        <!-- Todo: add hint text -->
+                        <div class="section-input">
+                            <label for="beats-per-bar-input">Beats Per Bar:</label>
+                            <input class="user-input" type="number" id="beats-per-bar-input" value="4" placeholder="4"
+                                   disabled>
+                        </div>
+
+                        <!-- Beats per bar input -->
+                        <!-- Todo: add units text -->
+                        <div class="section-input">
+                            <label for="beats-offset-input">Beats Offset:</label>
+                            <input class="user-input" type="number" id="beats-offset-input" value="0" placeholder="0"
+                                   step="0.001" disabled>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -55,7 +105,7 @@
                             <canvas id="notes-canvas"></canvas>
                         </div>
                         <div class="spectrogram-area" id="spectrogram-area">
-                            <canvas id="bars-canvas"></canvas>
+                            <canvas id="beats-canvas"></canvas>
                             <canvas id="spectrogram-canvas"></canvas>
                         </div>
                     </div>

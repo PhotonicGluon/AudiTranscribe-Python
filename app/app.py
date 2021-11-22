@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-20
+Updated on 2021-11-22
 
 Copyright © Ryan Kan
 
@@ -23,7 +23,7 @@ from pydub.exceptions import CouldntDecodeError
 
 from src.audio import estimate_bpm, get_audio_length, wav_samples_to_spectrogram
 from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
-from src.misc import NOTE_NUMBER_RANGE
+from src.misc import MUSIC_KEYS, NOTE_NUMBER_RANGE
 from src.visuals import generate_spectrogram_img
 
 # CONSTANTS
@@ -34,6 +34,10 @@ ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()]
 # Spectrogram settings
 PX_PER_SECOND = 100  # Number of pixels of the spectrogram dedicated to each second of audio
 SPECTROGRAM_HEIGHT = 720  # Height of the spectrogram, in pixels
+
+# Music settings
+BEATS_PER_BAR_RANGE = [1, 8]  # In the format [min, max]
+BPM_RANGE = [1, 512]  # In the format [min, max]
 
 # FLASK SETUP
 # Define basic things
@@ -272,13 +276,14 @@ def transcriber(uuid):
         process.start()
 
         # Render the template
-        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated,
-                               file_name=status["audio_file_name"], uuid=uuid)
+        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated, uuid=uuid,
+                               file_name=status["audio_file_name"])
     else:
-        # Render the template
-        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated,
-                               file_name=status["audio_file_name"], uuid=uuid, spectrogram=status["spectrogram"],
-                               note_number_range=NOTE_NUMBER_RANGE, duration=status["duration"], bpm=status["bpm"],
+        # Render the template with the variables
+        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated, uuid=uuid,
+                               bpm=status["bpm"], duration=status["duration"], file_name=status["audio_file_name"],
+                               spectrogram=status["spectrogram"], beats_per_bar_range=BEATS_PER_BAR_RANGE,
+                               bpm_range=BPM_RANGE, music_keys=MUSIC_KEYS, note_number_range=NOTE_NUMBER_RANGE,
                                px_per_second=PX_PER_SECOND)
 
 

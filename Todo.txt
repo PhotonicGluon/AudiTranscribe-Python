@@ -1,7 +1,8 @@
 Todo:
-    - Add transcription page core features
-    - Allow easy configuration of spectrogram image size
-        - Make the "frequency resolution" higher
+    - Make clicking on the same row as a note to play that note
     - Allow playing of audio along with the spectrogram
-    - Fix clicking "back" on the website causing the file to be re-uploaded
     - Make it easier to get back to a transcription page with a UUID
+        - A save file, maybe?
+
+Fixme:
+    - Fix clicking "back" on the website causing the file to be re-uploaded
