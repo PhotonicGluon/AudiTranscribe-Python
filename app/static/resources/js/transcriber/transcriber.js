@@ -1,5 +1,4 @@
 // CONSTANTS
-const CHECK_STATUS_INTERVAL = 2;  // In seconds
 const SPECTROGRAM_ZOOM_SCALE_X = 2;  // How much to zoom in along the x-axis?
 const SPECTROGRAM_ZOOM_SCALE_Y = 5;  // How much to zoom in along the y-axis?
 
@@ -9,9 +8,6 @@ const NOTES_FONT_NAME = "Arial";
 const NUMBERS_FONT_NAME = "Arial";
 
 // GET ELEMENTS
-// Overlay elements
-let spectrogramProgressBar = $("#spectrogram-progress-bar");
-
 // Input fields
 let beatsOffsetInput = $("#beats-offset-input");
 let beatsPerBarInput = $("#beats-per-bar-input");
@@ -257,114 +253,79 @@ musicKeyInput.change(() => {
 
 // Called when the document has been loaded
 $(document).ready(() => {
-    // Check the status ID
-    if (!SPECTROGRAM_GENERATED) {
-        // Create the progress bar
-        spectrogramProgressBar.progressbar({
-            value: 0  // Will be updated later
-        });
+    // Set the range for the input fields
+    beatsPerBarInput.attr("min", BEATS_PER_BAR_RANGE[0]);
+    beatsPerBarInput.attr("max", BEATS_PER_BAR_RANGE[1]);
 
-        // Start an interval checking the progress every `CHECK_STATUS_INTERVAL` seconds
-        let spectrogramProgressInterval = setInterval(() => {
-            // Query the progress page
-            $.ajax({
-                url: `/api/query-process/${UUID}`,
-                method: "POST"
-            }).done((data) => {
-                // Parse the data
-                data = JSON.parse(data);
+    bpmInput.attr("min", BPM_RANGE[0]);
+    bpmInput.attr("max", BPM_RANGE[1]);
 
-                // The data returned is an integer representing the progress percentage
-                let progress = data["Progress"];
+    // Wait till the spectrogram is loaded
+    SPECTROGRAM.onload = () => {
+        // Compute the final size of the spectrogram
+        let finalSpectrogramWidth = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
+        let finalSpectrogramHeight = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
-                // Update progress bar
-                spectrogramProgressBar.progressbar("option", "value", data["Progress"]);
+        // Resize the canvases to fit the image
+        beatsCanvas[0].width = finalSpectrogramWidth;
+        beatsCanvas[0].height = finalSpectrogramHeight;
 
-                // Check if progress is 100%
-                if (progress === 100) {
-                    // Stop the interval
-                    clearInterval(spectrogramProgressInterval);
+        notesCanvas[0].width = notesArea[0].clientWidth;
+        notesCanvas[0].height = finalSpectrogramHeight;
 
-                    // Reload the page
-                    location.reload();
-                }
-            });
-        }, CHECK_STATUS_INTERVAL * 1000);  // Convert seconds to milliseconds
-    } else {  // Spectrogram generated
-        // Set the range for the input fields
-        beatsPerBarInput.attr("min", BEATS_PER_BAR_RANGE[0]);
-        beatsPerBarInput.attr("max", BEATS_PER_BAR_RANGE[1]);
+        spectrogramCanvas[0].width = finalSpectrogramWidth;
+        spectrogramCanvas[0].height = finalSpectrogramHeight;
 
-        bpmInput.attr("min", BPM_RANGE[0]);
-        bpmInput.attr("max", BPM_RANGE[1]);
+        numbersCanvas[0].width = finalSpectrogramWidth;
+        numbersCanvas[0].height = numbersArea[0].clientHeight;
 
-        // Wait till the spectrogram is loaded
-        SPECTROGRAM.onload = () => {
-            // Compute the final size of the spectrogram
-            let finalSpectrogramWidth = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
-            let finalSpectrogramHeight = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+        // Set the height of the rows
+        topRow.height(finalSpectrogramHeight);
 
-            // Resize the canvases to fit the image
-            beatsCanvas[0].width = finalSpectrogramWidth;
-            beatsCanvas[0].height = finalSpectrogramHeight;
+        // Set the contexts' scale
+        spectrogramCtx.scale(SPECTROGRAM_ZOOM_SCALE_X, SPECTROGRAM_ZOOM_SCALE_Y);
 
-            notesCanvas[0].width = notesArea[0].clientWidth;
-            notesCanvas[0].height = finalSpectrogramHeight;
+        // Draw image to the canvas
+        spectrogramCtx.drawImage(SPECTROGRAM, 0, 0);
 
-            spectrogramCanvas[0].width = finalSpectrogramWidth;
-            spectrogramCanvas[0].height = finalSpectrogramHeight;
+        // Add lines for every note
+        for (let i = NOTE_NUMBER_RANGE[0]; i <= NOTE_NUMBER_RANGE[1]; i++) {
+            // Start a new path
+            spectrogramCtx.beginPath();
 
-            numbersCanvas[0].width = finalSpectrogramWidth;
-            numbersCanvas[0].height = numbersArea[0].clientHeight;
-
-            // Set the height of the rows
-            topRow.height(finalSpectrogramHeight);
-
-            // Set the contexts' scale
-            spectrogramCtx.scale(SPECTROGRAM_ZOOM_SCALE_X, SPECTROGRAM_ZOOM_SCALE_Y);
-
-            // Draw image to the canvas
-            spectrogramCtx.drawImage(SPECTROGRAM, 0, 0);
-
-            // Add lines for every note
-            for (let i = NOTE_NUMBER_RANGE[0]; i <= NOTE_NUMBER_RANGE[1]; i++) {
-                // Start a new path
-                spectrogramCtx.beginPath();
-
-                // Set the line format
-                if (i % 12 !== 0) {  // Not a C note
-                    spectrogramCtx.setLineDash([5, 3]);  // Solid for 5, blank for 3
-                } else {
-                    spectrogramCtx.setLineDash([1, 0]);  // Solid for 1, blank for 0
-                }
-
-                // Calculate the height to move the pointer to
-                let heightToMoveTo = freqToHeight(noteNumberToFreq(i));
-
-                // Move the pointer to the correct spot
-                spectrogramCtx.moveTo(
-                    0,
-                    heightToMoveTo + getHeightDifference() / 2   // Make the gap represent the note, not the line
-                );
-
-                // Draw the line
-                spectrogramCtx.lineTo(spectrogramCanvas[0].width, heightToMoveTo + getHeightDifference() / 2);
-                spectrogramCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";  // White with 50% opacity
-                spectrogramCtx.lineWidth = 1;
-                spectrogramCtx.stroke();
+            // Set the line format
+            if (i % 12 !== 0) {  // Not a C note
+                spectrogramCtx.setLineDash([5, 3]);  // Solid for 5, blank for 3
+            } else {
+                spectrogramCtx.setLineDash([1, 0]);  // Solid for 1, blank for 0
             }
 
-            // Set the notes' labels
-            drawNotesLabels();
+            // Calculate the height to move the pointer to
+            let heightToMoveTo = freqToHeight(noteNumberToFreq(i));
 
-            // Add lines for every beat
-            drawBeatsLines();
+            // Move the pointer to the correct spot
+            spectrogramCtx.moveTo(
+                0,
+                heightToMoveTo + getHeightDifference() / 2   // Make the gap represent the note, not the line
+            );
 
-            // Add numbers for every bar
-            drawBarsNumbersLabels();
-
-            // Enable input fields
-            $(".user-input").attr("disabled", false);
+            // Draw the line
+            spectrogramCtx.lineTo(spectrogramCanvas[0].width, heightToMoveTo + getHeightDifference() / 2);
+            spectrogramCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";  // White with 50% opacity
+            spectrogramCtx.lineWidth = 1;
+            spectrogramCtx.stroke();
         }
+
+        // Set the notes' labels
+        drawNotesLabels();
+
+        // Add lines for every beat
+        drawBeatsLines();
+
+        // Add numbers for every bar
+        drawBarsNumbersLabels();
+
+        // Enable input fields
+        $(".user-input").attr("disabled", false);
     }
 });

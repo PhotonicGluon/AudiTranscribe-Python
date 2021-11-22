@@ -36,14 +36,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if not spectrogram_generated %}
-        <div class="overlay" id="overlay">
-            <div class="progress-area">
-                <span>Processing <code>{{ file_name }}</code></span>
-                <div id="spectrogram-progress-bar"></div>
-            </div>
-        </div>
-    {% else %}
+    {% if spectrogram_generated %}
         <div class="main-page">
             <div class="sidebar">
                 <div class="main-menu">
@@ -118,9 +111,20 @@
                 </div>
             </div>
         </div>
+    {% else %}
+        <div class="overlay" id="overlay">
+            <div class="progress-area">
+                <span>Processing <code>{{ file_name }}</code></span>
+                <div id="spectrogram-progress-bar"></div>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}
 
 {% block body_scripts %}
-    <script src="{{ url_for('static', filename='resources/js/transcriber.js') }}"></script>
+    {% if spectrogram_generated %}
+        <script src="{{ url_for('static', filename='resources/js/transcriber/transcriber.js') }}"></script>
+    {% else %}
+        <script src="{{ url_for('static', filename='resources/js/transcriber/processing.js') }}"></script>
+    {% endif %}
 {% endblock %}
