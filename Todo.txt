@@ -11,3 +11,5 @@ Todo:
 Fixme:
     - Validation on the transcription is insufficient
         - E.g. empty fields break everything
+    - Fix spectrogram not showing occasionally
+    - Beats lines take a long time to update if the spectrogram is long

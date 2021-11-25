@@ -7,6 +7,8 @@ const NUMBERS_FONT_SIZE = 14;  // In pt
 const NOTES_FONT_NAME = "Arial";
 const NUMBERS_FONT_NAME = "Arial";
 
+const BEATS_LINES_WIDTH = 4;
+
 const PIANO_VOLUME = 0.25;  // As a number in the interval [0, 1]
 
 // GET ELEMENTS
@@ -118,11 +120,6 @@ function secondsPerBeat(bpm) {
     return 1 / (bpm / 60);  // BPM / 60 = Beats per second, so 1 / Beats Per Second = Seconds per Beat
 }
 
-// Convert BPM and beats per bar to seconds per bar
-function secondsPerBar(bpm, beatsPerBar) {
-    return secondsPerBeat(bpm) * beatsPerBar;
-}
-
 // HELPER FUNCTIONS
 function drawNotesLabels() {
     // Clear context
@@ -154,9 +151,6 @@ function drawNotesLabels() {
 }
 
 function drawBeatsLines() {
-    // Clear context
-    beatsCtx.clearRect(0, 0, beatsCanvas[0].width, beatsCanvas[0].height);
-
     // Calculate the number of beats and the number of bars
     let numBeats = Math.ceil(bpm / 60 * DURATION);  // `numBeats`is a whole number
 
@@ -167,17 +161,20 @@ function drawBeatsLines() {
             beatNum * secondsPerBeat(bpm) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
 
         // Draw the beat line on the beats canvas
-        beatsCtx.beginPath();
-        beatsCtx.moveTo(pos, 0);
-        beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
-        beatsCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";
-        beatsCtx.lineWidth = 3;
-        beatsCtx.stroke();
+        if (beatNum % beatsPerBar !== 0) {  // NOT perfectly on a bar
+            beatsCtx.beginPath();
+            beatsCtx.moveTo(pos, 0);
+            beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
+            beatsCtx.lineWidth = BEATS_LINES_WIDTH;
+            beatsCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";  // White with 50% opacity
+            beatsCtx.stroke();
+        }
     }
 }
 
 function drawBarsNumbersLabels() {
-    // Clear context
+    // Clear contexts
+    beatsCtx.clearRect(0, 0, beatsCanvas[0].width, beatsCanvas[0].height);
     numbersCtx.clearRect(0, 0, numbersCanvas[0].width, numbersCanvas[0].height);
 
     // Draw background of numbers area
@@ -192,7 +189,7 @@ function drawBarsNumbersLabels() {
     for (let barNum = 1; barNum <= numBars; barNum++) {
         // Calculate position to place the bar number label
         let pos = beatsOffset * PX_PER_SECOND +
-            (barNum - 1) * secondsPerBar(bpm, beatsPerBar) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+            (barNum - 1) * secondsPerBeat(bpm) * beatsPerBar * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
 
         // Draw an ellipse
         numbersCtx.beginPath();
@@ -222,7 +219,7 @@ function drawBarsNumbersLabels() {
         beatsCtx.moveTo(pos, 0);
         beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
         beatsCtx.strokeStyle = "rgba(0, 256, 0, 0.5)";  // Green with 50% opacity
-        beatsCtx.lineWidth = 3;
+        beatsCtx.lineWidth = BEATS_LINES_WIDTH;
         beatsCtx.stroke();
     }
 }
@@ -235,11 +232,11 @@ beatsOffsetInput.change(() => {
         // Update the existing beats offset value
         beatsOffset = parseFloat(beatsOffsetInput.val());
 
-        // Draw the new beats lines
-        drawBeatsLines();
-
         // Draw the new bars numbers labels
         drawBarsNumbersLabels();
+
+        // Draw the new beats lines
+        drawBeatsLines();
     }
 });
 
@@ -252,6 +249,9 @@ beatsPerBarInput.change(() => {
 
         // Draw the new bars numbers labels
         drawBarsNumbersLabels();
+
+        // Draw the new beats lines
+        drawBeatsLines();
     }
 });
 
@@ -262,11 +262,11 @@ bpmInput.change(() => {
         // Update the existing BPM value
         bpm = parseInt(bpmInput.val());
 
-        // Draw the new beats lines
-        drawBeatsLines();
-
         // Draw the new bars numbers labels
         drawBarsNumbersLabels();
+
+        // Draw the new beats lines
+        drawBeatsLines();
     }
 });
 
@@ -376,11 +376,11 @@ $(document).ready(() => {
         // Set the notes' labels
         drawNotesLabels();
 
-        // Add lines for every beat
-        drawBeatsLines();
-
         // Add numbers for every bar
         drawBarsNumbersLabels();
+
+        // Add lines for every beat
+        drawBeatsLines();
 
         // Enable input fields
         $(".user-input").attr("disabled", false);

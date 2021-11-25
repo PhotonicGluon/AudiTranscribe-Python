@@ -24,7 +24,6 @@ hr {
 /* General Styling */
 .main-page {
     display: flex;
-    background: gray;  /* Todo: remove this colour */
 }
 
 .main-area {
