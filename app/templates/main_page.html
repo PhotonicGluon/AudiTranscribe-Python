@@ -17,29 +17,24 @@
 
 {% block content %}
     <div class="header">
-        <nav id="nav">
-            <div class="row">
-                <img src="{{ url_for('static', filename='resources/img/favicon.png') }}" alt="The Challenge's Logo"
-                     class="logo">
-                <a class="nav-icon" id="nav-icon"><i class="ion-navicon-round"></i></a>
-            </div>
+        <nav>
+            <img src="{{ url_for('static', filename='resources/img/favicon.png') }}" alt="The Challenge's Logo"
+                 class="logo">
         </nav>
 
         <div class="hero-box">
             <h1>AudiTranscribe</h1>
-            <p class="introduction">
-                A music transcription application.
-                <br><br>
-                <h2>Ready to begin?</h2>
-                <span>Upload an audio file <b>OR</b> load an existing project file (an <code>.autr</code> file).</span>
-                <br>
-                <label for="upload-file-input" id="upload-button" class="button upload-button">Upload a File</label>
-                <input id="upload-file-input" type="file" autocomplete="off"/>
-                <br>
-                <span id="outcome-text"></span>
-                <br><br>
-                <em>Scroll down to read more about AudiTranscribe.</em>
-            </p>
+            <span>A music transcription application.</span>
+            <br>
+            <h2>Ready to begin?</h2>
+            <span>Upload an audio file <b>OR</b> load an existing project file (an <code>.autr</code> file).</span>
+            <br>
+            <label for="upload-file-input" id="upload-button" class="button upload-button">Upload a File</label>
+            <input id="upload-file-input" type="file" autocomplete="off"/>
+            <br>
+            <span id="outcome-text"></span>
+            <br><br>
+            <em>Scroll down to read more about AudiTranscribe.</em>
         </div>
     </div>
 {% endblock %}

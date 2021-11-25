@@ -2,7 +2,12 @@ Todo:
     - Make clicking on the same row as a note to play that note
         - Animate the notes canvas?
     - Allow playing of audio along with the spectrogram
-    - Style the save button on the transcription page
+    - Fully implement "save project"
+        - Allow the updated values on the transcription page to change the values in `status.yaml`
     - Allow deleting of projects
     - Fill in the rest of the main page
-    - Tidy up CSS files (esp. `main_page.css`)
+    - Update `README.md`
+
+Fixme:
+    - Validation on the transcription is insufficient
+        - E.g. empty fields break everything

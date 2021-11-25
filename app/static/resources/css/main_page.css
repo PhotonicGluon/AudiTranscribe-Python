@@ -2,89 +2,30 @@
 /* Basic Styling */
 html {
     text-rendering: optimizeLegibility;
-    font-size: 20px; /* This is the global font size */
+    font-size: 16pt; /* This is the global font size */
     font-family: "Arial", sans-serif;
     scroll-behavior: smooth;
 }
 
-li {
-    margin-top: 4px;
+h1, h2 {
+    margin-top: 10px;
+    text-align: center;
+    margin-bottom: 1px;
 }
 
-/* Reusable Components */
-.row {
+nav {
     max-width: 1080px;
     margin: 0 auto;
 }
 
-.sticky {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 2px 2px #efefef;
-    z-index: 9999;
-}
-
-/* Headings' Styling */
-h1, h2 {
-    text-align: center;
-}
-
-h1 {
-    margin-top: 10px;
-}
-
-h2 {
-    margin-top: 8px;
-    margin-bottom: 1px;
-}
-
-/* Header Styling */
+/* CLASS-BASED STYLING */
+/* General Styling */
 .header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../img/header_background.png);
     background-size: cover;
     background-position: center;
     height: 100vh;
     background-attachment: fixed;
-}
-
-.main-nav {
-    margin-top: 55px;
-    float: right;
-    list-style: none;
-}
-
-.nav-icon {
-    color: #fff;
-    font-size: 24pt;
-    float: right;
-    margin-top: 40px;
-    cursor: pointer;
-    display: none;
-}
-
-.logo {
-    margin-top: 30px;
-    height: 50px;
-    width: auto;
-    float: left;
-}
-
-.sticky .main-nav {
-    margin-top: 18px;
-}
-
-.sticky .nav-icon {
-    color: #555;
-    margin: 20px auto;
-}
-
-.sticky .logo {
-    height: 50px;
-    width: auto;
-    margin: 10px auto;
 }
 
 .hero-box {
@@ -96,10 +37,15 @@ h2 {
     color: white;
 }
 
-input[type="file"] {
-    display: none;
+/* Navbar */
+.logo {
+    margin-top: 30px;
+    height: 50px;
+    width: auto;
+    float: left;
 }
 
+/* Buttons */
 .button {
     border: 0;
     width: 300px;
@@ -124,6 +70,7 @@ input[type="file"] {
     background-color: #0079cb;
 }
 
+/* Texts */
 .error-text {
     color: #ff6978;
 }
@@ -132,66 +79,7 @@ input[type="file"] {
     color: #28b062;
 }
 
-/* Main Page's Styling */
-.introduction {
-    text-align: center;
-}
-
-.information {
-    text-align: justify;
-}
-
-/* Footer's Styling */
-footer {
-    padding: 10px 0 10px 0;
-    margin-top: 10px;
-    text-align: center;
-    background-color: #209bed;
-    color: white;
-}
-
-footer a {
-    color: white;
-}
-
-/* QUERIES */
-/* Styling for screens that are smaller than the maximum width*/
-@media screen and (max-width: 1080px) {
-    .row, .introduction, #error-text {
-        width: 90%;
-        margin: 0 auto;
-    }
-}
-
-/* Styling for screens that will mess up the navigation */
-@media screen and (max-width: 900px) {
-    .main-nav {
-        display: none;
-    }
-
-    .nav-icon {
-        display: inline-block;
-    }
-
-    .main-nav {
-        float: left;
-        margin-top: 40px;
-    }
-
-    .main-nav li {
-        margin-left: 35px;
-        display: block;
-    }
-
-    .main-nav li a:link, .main-nav li a:visited {
-        display: block;
-        border: 0;
-        padding: 10px 0;
-        font-size: 80%;
-    }
-
-    .sticky .main-nav {
-        margin-top: 14px;
-        margin-bottom: 10px;
-    }
+/* ELEMENT-BASED STYLING */
+#upload-file-input {
+    display: none;
 }
