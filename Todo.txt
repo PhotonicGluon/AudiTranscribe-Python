@@ -2,14 +2,11 @@ Todo:
     - Make clicking on the same row as a note to play that note
         - Animate the notes canvas?
     - Allow playing of audio along with the spectrogram
-    - Fully implement "save project"
-        - Allow the updated values on the transcription page to change the values in `status.yaml`
     - Allow deleting of projects
     - Fill in the rest of the main page
     - Update `README.md`
 
 Fixme:
-    - Validation on the transcription is insufficient
-        - E.g. empty fields break everything
     - Fix spectrogram not showing occasionally
     - Beats lines take a long time to update if the spectrogram is long
+    - Fix height of transcriber area not being the same as the sidebar height

@@ -19,9 +19,12 @@
     </script>
     {% if spectrogram_generated %}
         <script>
+            // Get status object
+            const STATUS = JSON.parse({{ status|tojson }});
+
             // Standard constants
-            const BPM = {{ bpm }};
-            const DURATION = {{ duration }};
+            const DURATION = STATUS["duration"];
+            const FILE_NAME = STATUS["audio_file_name"];
             const PX_PER_SECOND = {{ px_per_second }};
 
             // Ranges
@@ -31,7 +34,7 @@
 
             // Spectrogram image
             const SPECTROGRAM = new Image();
-            SPECTROGRAM.src = `/media/${UUID}/{{ spectrogram }}`;
+            SPECTROGRAM.src = `/media/${UUID}/${STATUS["spectrogram"]}`;
         </script>
     {% endif %}
 {% endblock %}
@@ -50,7 +53,9 @@
                     </h3>
                     <hr>
                     <div class="section">
-                        <a class="button" id="save-project-btn" href="/api/get-project-file/{{ uuid }}">Save Project</a>
+                        <a class="button" id="save-project-btn" download>Save Project</a>
+                        <a class="button" id="download-quicklink-btn" download>Download Quicklink</a>
+                        <span id="outcome-text"></span>
                     </div>
 
                     <hr>
@@ -58,7 +63,7 @@
                     <div class="section">
                         <!-- Music key input -->
                         <div class="section-input">
-                            <label for="music-key-input">Music Key: </label>
+                            <label for="music-key-input">Music Key:</label>
                             <!-- Todo: fix weird spacing between select elements -->
                             <select class="user-input" name="music-key" id="music-key-input" disabled>
                                 {% for key in music_keys %}
@@ -73,7 +78,7 @@
 
                         <!-- BPM input -->
                         <div class="section-input">
-                            <label for="bpm-input">Beats Per Minute (BPM): </label>
+                            <label for="bpm-input">Beats Per Minute (BPM):</label>
                             <input class="user-input" type="number" id="bpm-input" value="{{ bpm }}"
                                    placeholder="{{ bpm }}" disabled>
                         </div>
@@ -86,7 +91,7 @@
                                    disabled>
                         </div>
 
-                        <!-- Beats per bar input -->
+                        <!-- Beats offset input -->
                         <!-- Todo: add units text -->
                         <div class="section-input">
                             <label for="beats-offset-input">Beats Offset:</label>

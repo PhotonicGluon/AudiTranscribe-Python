@@ -25,18 +25,25 @@ let topRow = $("#top-row");
 let notesArea = $("#notes-area");
 let numbersArea = $("#numbers-area");
 
+// Buttons
+let downloadQuicklinkBtn = $("#download-quicklink-btn");
+let saveProjectBtn = $("#save-project-btn");
+
 // Canvases
 let beatsCanvas = $("#beats-canvas");
 let notesCanvas = $("#notes-canvas");
 let numbersCanvas = $("#numbers-canvas");
 let spectrogramCanvas = $("#spectrogram-canvas");
 
+// Others
+let outcomeText = $("#outcome-text");
+
 // GLOBAL VARIABLES
 // Settings
-let beatsOffset = 0;  // In seconds
-let beatsPerBar = 4;
-let bpm = BPM;
-let musicKey = "C";
+let beatsOffset = getKeyIfPresent("beats_offset", STATUS, 0);  // In seconds
+let beatsPerBar = getKeyIfPresent("beats_per_bar", STATUS, 4);
+let bpm = getKeyIfPresent("bpm", STATUS, 120);
+let musicKey = getKeyIfPresent("music_key", STATUS, "C");
 
 // Contexts for canvases
 let beatsCtx = beatsCanvas[0].getContext("2d");
@@ -115,9 +122,20 @@ function getHeightDifference() {
     return SPECTROGRAM.height / (NOTE_NUMBER_RANGE[1] - NOTE_NUMBER_RANGE[0]);
 }
 
+// Gets the key in a JSON object if it is present
+function getKeyIfPresent(key, jsonObj, defaultValue) {
+    if (jsonObj[key] !== null && jsonObj[key] !== undefined && jsonObj[key] !== "") return jsonObj[key];
+    return defaultValue
+}
+
 // Convert BPM to seconds per beat
 function secondsPerBeat(bpm) {
     return 1 / (bpm / 60);  // BPM / 60 = Beats per second, so 1 / Beats Per Second = Seconds per Beat
+}
+
+// Check if an input field is valid
+function checkValidity(jQueryInputField) {
+    return jQueryInputField.val() !== "" && jQueryInputField[0].checkValidity();
 }
 
 // HELPER FUNCTIONS
@@ -224,11 +242,71 @@ function drawBarsNumbersLabels() {
     }
 }
 
+function getSettingsValues() {
+    // Check if all inputs are valid
+    let validInputs = true;
+
+    if (!checkValidity(beatsOffsetInput)) {
+        validInputs = false;
+    }
+
+    if (!checkValidity(beatsPerBarInput)) {
+        validInputs = false;
+    }
+
+    if (!checkValidity(bpmInput)) {
+        validInputs = false;
+    }
+
+    if (!checkValidity(musicKeyInput)) {
+        validInputs = false;
+    }
+
+    // Check the `validInputs` flag
+    if (!validInputs) {
+        // Display an error
+        outcomeText.text("Not all settings are valid.");
+        outcomeText.addClass("error-text");
+
+        // Clear text box after a while
+        setTimeout(() => {
+            // Clear the outcome text
+            outcomeText.text("");
+            outcomeText.removeClass("error-text");
+            outcomeText.removeClass("success-text");
+        }, 3000);
+
+        throw Error;
+
+    } else {
+        // Get inputs
+        let beatsOffset = parseFloat(beatsOffsetInput.val());
+        let beatsPerBar = parseInt(beatsPerBarInput.val());
+        let bpm = parseInt(bpmInput.val());
+        let musicKey = musicKeyInput.val();
+
+        // Wrap the values into a JSON object and return it
+        return {
+            beats_offset: beatsOffset,
+            beats_per_bar: beatsPerBar,
+            bpm: bpm,
+            music_key: musicKey,
+        };
+    }
+}
+
+function fillInInputFields() {
+    beatsOffsetInput.val(beatsOffset);
+    beatsPerBarInput.val(beatsPerBar);
+    bpmInput.val(bpm);
+    musicKeyInput.val(musicKey);
+}
+
 // MAIN FUNCTIONS
 // Called when the beats offset input changes
 beatsOffsetInput.change(() => {
     // Update value if and only if it is valid
-    if (beatsOffsetInput[0].checkValidity()) {
+    if (checkValidity(beatsOffsetInput)) {
         // Update the existing beats offset value
         beatsOffset = parseFloat(beatsOffsetInput.val());
 
@@ -243,7 +321,7 @@ beatsOffsetInput.change(() => {
 // Called when the beats per bar input changes
 beatsPerBarInput.change(() => {
     // Update value if and only if it is valid
-    if (beatsPerBarInput[0].checkValidity()) {
+    if (checkValidity(beatsPerBarInput)) {
         // Update the existing beats per bar value
         beatsPerBar = parseInt(beatsPerBarInput.val());
 
@@ -258,7 +336,7 @@ beatsPerBarInput.change(() => {
 // Called when the BPM input changes
 bpmInput.change(() => {
     // Update value if and only if it is valid
-    if (bpmInput[0].checkValidity()) {
+    if (checkValidity(bpmInput)) {
         // Update the existing BPM value
         bpm = parseInt(bpmInput.val());
 
@@ -273,7 +351,7 @@ bpmInput.change(() => {
 // Called when the music key changes
 musicKeyInput.change(() => {
     // Update value if and only if it is valid
-    if (musicKeyInput[0].checkValidity()) {
+    if (checkValidity(musicKeyInput)) {
         // Update the existing music key
         musicKey = musicKeyInput.val();
 
@@ -305,6 +383,78 @@ beatsCanvas.click((evt) => {
     pianoSynth.play(note["note"], note["octave"], 1);  // Plays for 1s using
 });
 
+// Called when the "Download Quicklink" button is clicked
+downloadQuicklinkBtn.click(() => {
+    // Send the request to the server
+    $.ajax({
+        url: `/api/download-quicklink/${UUID}`,
+        method: "POST"
+    }).done((data) => {
+        // Convert the data into a blob object
+        let blob = new Blob([data], {type: "text/plain"});
+
+        // Get the URL object that is defined by the browser
+        let url = window.URL || window.webkitURL;
+
+        // Create a local link for the file object
+        let link = url.createObjectURL(blob);
+
+        // Get the file name of the audio file
+        let splitFileName = FILE_NAME.split(".");
+        let filename = splitFileName.slice(0, splitFileName.length - 1).join(".") + ".autr";
+
+        // Download the file
+        downloadURI(link, filename);
+    });
+});
+
+// Called when the "Save Project" button is clicked
+saveProjectBtn.click(() => {
+    // Get the form data
+    let data;
+
+    try {
+        data = getSettingsValues();
+    } catch (e) {
+        return;
+    }
+
+    // Send the save project request to the server
+    $.ajax({
+        url: `/api/save-project/${UUID}`,
+        method: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8"
+    }).done((data) => {
+        // Clear the outcome text
+        outcomeText.text("");
+        outcomeText.removeClass("error-text");
+        outcomeText.removeClass("success-text");
+
+        // Parse the JSON data
+        data = JSON.parse(data);
+
+        // Check the outcome
+        if (data["outcome"] === "error") {
+            // Display the error
+            outcomeText.text(data["msg"]);
+            outcomeText.addClass("error-text");
+
+        } else {  // Assume it is OK
+            // Show success message
+            outcomeText.text(data["msg"]);
+            outcomeText.addClass("success-text");
+        }
+
+        // Clear text box after a while
+        setTimeout(() => {
+            outcomeText.text("");
+            outcomeText.removeClass("error-text");
+            outcomeText.removeClass("success-text");
+        }, 3000);
+    });
+});
+
 // Called when the document has been loaded
 $(document).ready(() => {
     // Set the range for the input fields
@@ -313,6 +463,9 @@ $(document).ready(() => {
 
     bpmInput.attr("min", BPM_RANGE[0]);
     bpmInput.attr("max", BPM_RANGE[1]);
+
+    // Set the default input values (if present)
+    fillInInputFields();
 
     // Set piano synthesiser's volume
     Synth.setVolume(PIANO_VOLUME);

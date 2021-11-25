@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-22
+Updated on 2021-11-25
 
 Copyright © Ryan Kan
 
@@ -148,8 +148,8 @@ def send_media(uuid, path):
 
 
 # API PAGES
-@app.route("/api/get-project-file/<uuid>", methods=["GET"])
-def get_project_file(uuid):
+@app.route("/api/download-quicklink/<uuid>", methods=["POST"])
+def download_quicklink(uuid):
     # Generate the UUID's folder's path
     folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
 
@@ -157,13 +157,8 @@ def get_project_file(uuid):
     if not os.path.isdir(folder_path):
         return abort(404)
 
-    # Read the status file
-    with open(os.path.join(folder_path, "status.yaml"), "r") as f:
-        status = yaml.load(f, yaml.Loader)
-
     # Send the status file
-    return send_file(os.path.join("..", folder_path, "status.yaml"),
-                     download_name=os.path.splitext(status["audio_file_name"])[0] + ".autr")
+    return send_file(os.path.join("..", folder_path, "status.yaml"))
 
 
 @app.route("/api/query-process/<uuid>", methods=["POST"])
@@ -187,6 +182,22 @@ def query_process(uuid):
         return json.dumps({"Progress": progress_percentage})
     else:  # The progress has been used and completed
         return json.dumps({"Progress": 100})
+
+
+@app.route("/api/save-project/<uuid>", methods=["POST"])
+def save_project(uuid):
+    # Generate the UUID's folder's path
+    folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
+
+    # Check if a folder with that UUID exists
+    if not os.path.isdir(folder_path):
+        return json.dumps({"outcome": "error", "msg": "UUID doesn't exist."})
+
+    # Update the status file
+    update_status_file(os.path.join(folder_path, "status.yaml"), **request.json)
+
+    # Send the status file
+    return json.dumps({"outcome": "ok", "msg": "Project saved successfully."})
 
 
 @app.route("/api/upload-file", methods=["POST"])
@@ -315,10 +326,9 @@ def transcriber(uuid):
     else:
         # Render the template with the variables
         return render_template("transcriber.html", spectrogram_generated=spectrogram_generated, uuid=uuid,
-                               bpm=status["bpm"], duration=status["duration"], file_name=status["audio_file_name"],
-                               spectrogram=status["spectrogram"], beats_per_bar_range=BEATS_PER_BAR_RANGE,
-                               bpm_range=BPM_RANGE, music_keys=MUSIC_KEYS, note_number_range=NOTE_NUMBER_RANGE,
-                               px_per_second=PX_PER_SECOND)
+                               file_name=status["audio_file_name"], status=json.dumps(status),
+                               beats_per_bar_range=BEATS_PER_BAR_RANGE, bpm_range=BPM_RANGE, music_keys=MUSIC_KEYS,
+                               note_number_range=NOTE_NUMBER_RANGE, px_per_second=PX_PER_SECOND)
 
 
 # TESTING CODE

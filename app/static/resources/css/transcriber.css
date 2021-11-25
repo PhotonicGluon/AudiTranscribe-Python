@@ -6,7 +6,7 @@ hr {
 /* CLASS-BASED STYLING */
 /* Utilities' Styling */
 .button {
-    display: inline-block;
+    display: block;
     padding: 2px 6px;
     background-color: #f0f0f0;
     border-width: 1px;
@@ -14,11 +14,22 @@ hr {
     border-style: outset;
     border-color: #707070;
     color: black;
+    cursor: pointer;
+    text-align: center;
     text-decoration: none;
 }
 
 .button:hover {
     background-color: #e0e0e0;
+}
+
+/* Texts */
+.error-text {
+    color: #ff6978;
+}
+
+.success-text {
+    color: #28b062;
 }
 
 /* General Styling */
@@ -155,6 +166,11 @@ hr {
 #beats-canvas {
     position: absolute;
     z-index: 1;
+}
+
+#outcome-text {
+    display: block;
+    text-align: center;
 }
 
 #spectrogram-progress-bar {
