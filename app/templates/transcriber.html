@@ -44,7 +44,7 @@
         <div class="main-page">
             <div class="sidebar">
                 <div class="main-menu">
-                    <h1>AudiTranscribe</h1>
+                    <a class="main-header" href="{{ url_for('main_page') }}"><h1>AudiTranscribe</h1></a>
                     <h3>
                         File:
                         <a href="{{ url_for('send_media', uuid=uuid, path=file_name) }}" download>

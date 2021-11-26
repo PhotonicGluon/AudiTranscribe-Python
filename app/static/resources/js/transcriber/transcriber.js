@@ -163,7 +163,6 @@ function drawNotesLabels() {
         let heightToMoveTo = freqToHeight(noteNumberToFreq(i));
 
         // Center align the text on the correct row
-        // Todo: fix the C0 and B9 going off screen
         notesCtx.font = `${NOTES_FONT_SIZE}pt ${NOTES_FONT_NAME}`;
         notesCtx.textAlign = "center";
         notesCtx.fillStyle = "#000000";
@@ -503,9 +502,6 @@ musicKeyInput.change(() => {
 });
 
 // MAIN FUNCTION
-// // Called when the document has been loaded
-// $(document).ready(() => {
-
 // Called when the document and canvases are ready
 $(document, beatsCanvas, notesCanvas, numbersCanvas, spectrogramCanvas).ready(() => {
     // Set the range for the input fields

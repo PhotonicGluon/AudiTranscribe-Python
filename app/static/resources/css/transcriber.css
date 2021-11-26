@@ -23,6 +23,11 @@ hr {
     background-color: #e0e0e0;
 }
 
+.main-header {
+    text-decoration: none;
+    color: black;
+}
+
 /* Texts */
 .error-text {
     color: #ff6978;
