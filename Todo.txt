@@ -7,5 +7,6 @@ Todo:
     - Update `README.md`
 
 Fixme:
+    - (URGENT) Fix spectrogram not showing occasionally
     - Beats lines take a long time to update if the spectrogram is long
     - Massive lag when switching back to some spectrograms
