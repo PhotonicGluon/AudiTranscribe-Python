@@ -32,10 +32,6 @@
             const BPM_RANGE = {{ bpm_range }};
             const NOTE_NUMBER_RANGE = {{ note_number_range }};
 
-            // Spectrogram image
-            const SPECTROGRAM = new Image();
-            SPECTROGRAM.src = `/media/${UUID}/${STATUS["spectrogram"]}`;
-
             // Audio file
             const AUDIO = new Audio();
             AUDIO.src = `/media/${UUID}/{{ file_name }}`;

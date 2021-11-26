@@ -63,6 +63,9 @@ let numbersCtx = numbersCanvas[0].getContext("2d");
 let playheadCtx = playheadCanvas[0].getContext("2d");
 let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
 
+// Spectrogram
+let spectrogram = new Image();
+
 // Piano
 let pianoSynth = Synth.createInstrument("piano");
 
@@ -113,7 +116,7 @@ function freqToHeight(freq) {
 
     // Scale accordingly and return. Since (0, 0) is the upper left we have to adjust to make (0, 0) to be the lower
     // left corner instead
-    return (1 - (loggedFrequency - loggedMinimum) / (loggedMaximum - loggedMinimum)) * SPECTROGRAM.height;
+    return (1 - (loggedFrequency - loggedMinimum) / (loggedMaximum - loggedMinimum)) * spectrogram.height;
 }
 
 // Converts a given height on the canvas to a frequency
@@ -123,7 +126,7 @@ function heightToFreq(height) {
     let maximumFreq = noteNumberToFreq(NOTE_NUMBER_RANGE[1]);
 
     // Compute the ratio of the given height and the spectrogram's height
-    let heightRatio = height / SPECTROGRAM.height;
+    let heightRatio = height / spectrogram.height;
 
     // Return the estimated frequency
     return Math.pow(minimumFreq, heightRatio) * Math.pow(maximumFreq, 1 - heightRatio);
@@ -131,7 +134,7 @@ function heightToFreq(height) {
 
 // Gets the height difference between two adjacent notes
 function getHeightDifference() {
-    return SPECTROGRAM.height / (NOTE_NUMBER_RANGE[1] - NOTE_NUMBER_RANGE[0]);
+    return spectrogram.height / (NOTE_NUMBER_RANGE[1] - NOTE_NUMBER_RANGE[0]);
 }
 
 // Gets the key in a JSON object if it is present
@@ -540,7 +543,7 @@ $(document).keydown((evt) => {
 
 // MAIN FUNCTION
 // Called when the document is ready
-$(document).ready(async () => {
+$(document).ready(() => {
     // Set the range for the input fields
     beatsPerBarInput.attr("min", BEATS_PER_BAR_RANGE[0]);
     beatsPerBarInput.attr("max", BEATS_PER_BAR_RANGE[1]);
@@ -554,11 +557,11 @@ $(document).ready(async () => {
     // Set piano synthesiser's volume
     Synth.setVolume(PIANO_VOLUME);
 
-    // Wait till the spectrogram is loaded
-    SPECTROGRAM.onload = () => {
+    // Set the onload function of the spectrogram
+    spectrogram.onload = () => {
         // Compute the final size of the spectrogram
-        let finalSpectrogramWidth = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
-        let finalSpectrogramHeight = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
+        let finalSpectrogramWidth = spectrogram.width * SPECTROGRAM_ZOOM_SCALE_X;
+        let finalSpectrogramHeight = spectrogram.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
         // Resize the canvases to the correct dimensions
         beatsCanvas[0].width = finalSpectrogramWidth;
@@ -583,7 +586,7 @@ $(document).ready(async () => {
         spectrogramCtx.scale(SPECTROGRAM_ZOOM_SCALE_X, SPECTROGRAM_ZOOM_SCALE_Y);
 
         // Draw image to the canvas
-        spectrogramCtx.drawImage(SPECTROGRAM, 0, 0);
+        spectrogramCtx.drawImage(spectrogram, 0, 0);
 
         // Add lines for every note
         for (let i = NOTE_NUMBER_RANGE[0]; i <= NOTE_NUMBER_RANGE[1]; i++) {
@@ -644,4 +647,7 @@ $(document).ready(async () => {
         // Enable input fields
         $(".user-input").attr("disabled", false);
     }
+
+    // Load the spectrogram from the image source
+    spectrogram.src = `/media/${UUID}/${STATUS["spectrogram"]}`;
 });
