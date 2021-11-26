@@ -35,6 +35,10 @@
             // Spectrogram image
             const SPECTROGRAM = new Image();
             SPECTROGRAM.src = `/media/${UUID}/${STATUS["spectrogram"]}`;
+
+            // Audio file
+            const AUDIO = new Audio();
+            AUDIO.src = `/media/${UUID}/{{ file_name }}`;
         </script>
     {% endif %}
 {% endblock %}
@@ -104,6 +108,7 @@
 
             <div class="main-area">
                 <div class="transcription-area">
+                    <canvas id="playhead-canvas"></canvas>
                     <div class="row top-row" id="top-row">
                         <div class="notes-area" id="notes-area">
                             <canvas id="notes-canvas"></canvas>
@@ -122,6 +127,7 @@
                 </div>
             </div>
         </div>
+
         <div class="modal-background" id="delete-project-modal">
             <div class="modal-content">
                 <span class="close-btn" id="close-modal">&times;</span>
@@ -132,7 +138,7 @@
                 </p>
                 <a class="button" id="confirm-delete-btn"><b>Confirm Delete</b></a>
                 <a class="button" id="cancel-delete-btn">Cancel Delete</a>
-              </div>
+            </div>
         </div>
     {% else %}
         <div class="overlay" id="overlay">

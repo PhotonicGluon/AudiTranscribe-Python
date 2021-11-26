@@ -2,7 +2,6 @@ Todo:
     - Make clicking on the same row as a note to play that note
         - Animate the notes canvas?
     - Add loading screen whilst the spectrogram is still being loaded
-    - Allow playing of audio along with the spectrogram
     - Fill in the rest of the main page
     - Update `README.md`
 

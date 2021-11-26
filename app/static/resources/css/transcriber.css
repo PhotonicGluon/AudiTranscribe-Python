@@ -55,6 +55,7 @@ hr {
 .transcription-area {
     height: 100%;
     overflow: scroll;
+    position: relative;
 }
 
 /* Sidebar Styling */
@@ -94,7 +95,7 @@ hr {
 }
 
 .section-input input[type="number"] {
-    width: calc(50% - 8px);  /* 8px is for the buttons for number selection */
+    width: calc(50% - 8px); /* 8px is for the buttons for number selection */
 }
 
 .section-input input:invalid {
@@ -135,12 +136,14 @@ hr {
     width: 50px; /* Width of the notes area */
     height: 50px; /* Height of the numbers area */
     background: white;
+    z-index: 4;
 }
 
 .numbers-area {
     display: block;
     height: 50px;
     width: min-content;
+    z-index: 2;
 }
 
 /* Overlay Styling */
@@ -243,6 +246,11 @@ hr {
 #outcome-text {
     display: block;
     text-align: center;
+}
+
+#playhead-canvas {
+    position: absolute;
+    z-index: 2;
 }
 
 #spectrogram-progress-bar {

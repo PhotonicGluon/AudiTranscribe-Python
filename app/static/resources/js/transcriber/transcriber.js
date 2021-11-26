@@ -8,8 +8,11 @@ const NOTES_FONT_NAME = "Arial";
 const NUMBERS_FONT_NAME = "Arial";
 
 const BEATS_LINES_WIDTH = 4;
+const PLAYHEAD_LINE_WIDTH = 10;
 
-const PIANO_VOLUME = 0.25;  // As a number in the interval [0, 1]
+const PIANO_VOLUME = 0.2;  // As a number in the interval [0, 1]
+
+const PLAYHEAD_REFRESH_RATE = 50;  // Number of times refreshing occurs per second
 
 // GET ELEMENTS
 // Input fields
@@ -34,6 +37,7 @@ let saveProjectBtn = $("#save-project-btn");
 let beatsCanvas = $("#beats-canvas");
 let notesCanvas = $("#notes-canvas");
 let numbersCanvas = $("#numbers-canvas");
+let playheadCanvas = $("#playhead-canvas");
 let spectrogramCanvas = $("#spectrogram-canvas");
 
 // "Delete Project" modal
@@ -56,6 +60,7 @@ let musicKey = getKeyIfPresent("music_key", STATUS, "C");
 let beatsCtx = beatsCanvas[0].getContext("2d");
 let notesCtx = notesCanvas[0].getContext("2d");
 let numbersCtx = numbersCanvas[0].getContext("2d");
+let playheadCtx = playheadCanvas[0].getContext("2d");
 let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
 
 // Piano
@@ -387,11 +392,10 @@ saveProjectBtn.click(() => {
 });
 
 // CANVAS FUNCTIONS
-// Called when the canvas is clicked
+// Called when the beats canvas is clicked
 beatsCanvas.click((evt) => {
     // Get the position which the mouse clicked
     let rect = beatsCanvas[0].getBoundingClientRect();  // Absolute size of the beats canvas
-    let xPos = (evt.clientX - rect.left) / SPECTROGRAM_ZOOM_SCALE_X;  // Make it according to the base width
     let yPos = (evt.clientY - rect.top) / SPECTROGRAM_ZOOM_SCALE_Y;  // Make it according to the base height
 
     // Compute the frequency that the mouse click would correspond to
@@ -408,6 +412,20 @@ beatsCanvas.click((evt) => {
 
     // Play the note
     pianoSynth.play(note["note"], note["octave"], 1);  // Plays for 1s using
+});
+
+// Called when the numbers canvas is clicked
+numbersCanvas.click((evt) => {
+    // Get the position which the mouse clicked
+    let rect = numbersCanvas[0].getBoundingClientRect();  // Absolute size of the beats canvas
+    let xPos = evt.clientX - rect.left;  // Make it according to the base width
+
+    // Move the playhead to that position
+    playheadCanvas.css({left: xPos + notesCanvas[0].clientWidth});
+
+    // Change the audio track's current time as well
+    AUDIO.currentTime = xPos / SPECTROGRAM_ZOOM_SCALE_X / PX_PER_SECOND;
+
 });
 
 // DELETE PROJECT MODAL FUNCTIONS
@@ -501,9 +519,28 @@ musicKeyInput.change(() => {
     }
 });
 
+// KEYBOARD INPUT FUNCTIONS
+// Called when a key is pressed on the keyboard whilst on the main area
+$(document).keydown((evt) => {
+    // Detect when the space bar is pressed
+    if (evt.which === 32) {
+        // Prevent the default event from occurring
+        evt.preventDefault();
+
+        // Toggle the audio
+        if (AUDIO.paused) {
+            // Play the audio
+            AUDIO.play().then(_ => null);
+        } else {
+            // Pause the audio
+            AUDIO.pause();
+        }
+    }
+});
+
 // MAIN FUNCTION
-// Called when the document and canvases are ready
-$(document, beatsCanvas, notesCanvas, numbersCanvas, spectrogramCanvas).ready(() => {
+// Called when the document is ready
+$(document).ready(async () => {
     // Set the range for the input fields
     beatsPerBarInput.attr("min", BEATS_PER_BAR_RANGE[0]);
     beatsPerBarInput.attr("max", BEATS_PER_BAR_RANGE[1]);
@@ -523,7 +560,7 @@ $(document, beatsCanvas, notesCanvas, numbersCanvas, spectrogramCanvas).ready(()
         let finalSpectrogramWidth = SPECTROGRAM.width * SPECTROGRAM_ZOOM_SCALE_X;
         let finalSpectrogramHeight = SPECTROGRAM.height * SPECTROGRAM_ZOOM_SCALE_Y;
 
-        // Resize the canvases to fit the image
+        // Resize the canvases to the correct dimensions
         beatsCanvas[0].width = finalSpectrogramWidth;
         beatsCanvas[0].height = finalSpectrogramHeight;
 
@@ -535,6 +572,9 @@ $(document, beatsCanvas, notesCanvas, numbersCanvas, spectrogramCanvas).ready(()
 
         numbersCanvas[0].width = finalSpectrogramWidth;
         numbersCanvas[0].height = numbersArea[0].clientHeight;
+
+        playheadCanvas[0].width = PLAYHEAD_LINE_WIDTH / 2;
+        playheadCanvas[0].height = finalSpectrogramHeight + numbersArea[0].clientHeight;
 
         // Set the height of the rows
         topRow.height(finalSpectrogramHeight);
@@ -581,6 +621,25 @@ $(document, beatsCanvas, notesCanvas, numbersCanvas, spectrogramCanvas).ready(()
 
         // Add lines for every beat
         drawBeatsLines();
+
+        // Draw the playhead line
+        playheadCtx.beginPath();
+        playheadCtx.moveTo(0, 0);
+        playheadCtx.lineTo(0, playheadCanvas[0].height);
+        playheadCtx.lineWidth = PLAYHEAD_LINE_WIDTH;
+        playheadCtx.strokeStyle = "#0ff";
+        playheadCtx.stroke();
+
+        // Create an interval which updates the position of the playhead
+        setInterval(() => {
+            if (!AUDIO.paused) {
+                // Calculate the position to place the playhead
+                let pos = AUDIO.currentTime * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X + notesCanvas[0].clientWidth;
+
+                // Update position of playhead
+                playheadCanvas.css({left: pos});
+            }
+        }, 1000 / PLAYHEAD_REFRESH_RATE);
 
         // Enable input fields
         $(".user-input").attr("disabled", false);
