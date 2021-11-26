@@ -55,6 +55,7 @@
                     <div class="section">
                         <a class="button" id="save-project-btn" download>Save Project</a>
                         <a class="button" id="download-quicklink-btn" download>Download Quicklink</a>
+                        <a class="button" id="delete-project-btn" download>Delete Project</a>
                         <span id="outcome-text"></span>
                     </div>
 
@@ -121,6 +122,18 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="modal-background" id="delete-project-modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-modal">&times;</span>
+                <h3>Are You Absolutely Sure?</h3>
+                <p class="modal-paragraph">
+                    Are you absolutely sure that you want to delete this project? You will need to re-process the audio
+                    file again if you want to see the spectrogram again.
+                </p>
+                <a class="button" id="confirm-delete-btn"><b>Confirm Delete</b></a>
+                <a class="button" id="cancel-delete-btn">Cancel Delete</a>
+              </div>
         </div>
     {% else %}
         <div class="overlay" id="overlay">

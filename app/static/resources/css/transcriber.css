@@ -54,7 +54,7 @@ hr {
 
 /* Sidebar Styling */
 .main-menu {
-    width: calc(25vw - 5px);  /* Account for the border */
+    width: calc(25vw - 5px); /* Account for the border */
     height: 100vh;
     background: white;
     border-right: black 5px solid;
@@ -120,8 +120,8 @@ hr {
 .blank-area {
     position: sticky;
     left: 0;
-    width: 50px;  /* Width of the notes area */
-    height: 50px;  /* Height of the numbers area */
+    width: 50px; /* Width of the notes area */
+    height: 50px; /* Height of the numbers area */
     background: white;
 }
 
@@ -141,7 +141,7 @@ hr {
 }
 
 .progress-area {
-    background: rgba(0,0,0, 0.5); /* Semi-transparent white */
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent white */
     border-radius: 5px;
     display: block;
     width: 50%;
@@ -156,10 +156,70 @@ hr {
 }
 
 .ui-widget-header {
-	border: 1px solid #52489c;
-	background: #52489c;
-	color: #ffffff;
-	font-weight: bold;
+    border: 1px solid #52489c;
+    background: #52489c;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* "Delete Project" Modal Styling */
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover, .close-btn:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-background {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 25%;
+    animation-name: animate-modal;
+    animation-duration: 0.5s;
+}
+
+.modal-content .button {
+    margin: 10px 0;
+    padding: 10px 0;
+}
+
+.modal-content h3 {
+    margin: 2px;
+}
+
+.modal-paragraph {
+    text-align: justify;
+}
+
+/* Add Animation */
+@keyframes animate-modal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* ELEMENT-BASED STYLING */

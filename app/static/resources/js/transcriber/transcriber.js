@@ -26,6 +26,7 @@ let notesArea = $("#notes-area");
 let numbersArea = $("#numbers-area");
 
 // Buttons
+let deleteProjectBtn = $("#delete-project-btn");
 let downloadQuicklinkBtn = $("#download-quicklink-btn");
 let saveProjectBtn = $("#save-project-btn");
 
@@ -34,6 +35,12 @@ let beatsCanvas = $("#beats-canvas");
 let notesCanvas = $("#notes-canvas");
 let numbersCanvas = $("#numbers-canvas");
 let spectrogramCanvas = $("#spectrogram-canvas");
+
+// "Delete Project" modal
+let cancelDeleteButton = $("#cancel-delete-btn");
+let closeModalButton = $("#close-modal");
+let confirmDeleteButton = $("#confirm-delete-btn");
+let deleteProjectModal = $("#delete-project-modal");
 
 // Others
 let outcomeText = $("#outcome-text");
@@ -242,6 +249,13 @@ function drawBarsNumbersLabels() {
     }
 }
 
+function fillInInputFields() {
+    beatsOffsetInput.val(beatsOffset);
+    beatsPerBarInput.val(beatsPerBar);
+    bpmInput.val(bpm);
+    musicKeyInput.val(musicKey);
+}
+
 function getSettingsValues() {
     // Check if all inputs are valid
     let validInputs = true;
@@ -295,92 +309,10 @@ function getSettingsValues() {
     }
 }
 
-function fillInInputFields() {
-    beatsOffsetInput.val(beatsOffset);
-    beatsPerBarInput.val(beatsPerBar);
-    bpmInput.val(bpm);
-    musicKeyInput.val(musicKey);
-}
-
-// MAIN FUNCTIONS
-// Called when the beats offset input changes
-beatsOffsetInput.change(() => {
-    // Update value if and only if it is valid
-    if (checkValidity(beatsOffsetInput)) {
-        // Update the existing beats offset value
-        beatsOffset = parseFloat(beatsOffsetInput.val());
-
-        // Draw the new bars numbers labels
-        drawBarsNumbersLabels();
-
-        // Draw the new beats lines
-        drawBeatsLines();
-    }
-});
-
-// Called when the beats per bar input changes
-beatsPerBarInput.change(() => {
-    // Update value if and only if it is valid
-    if (checkValidity(beatsPerBarInput)) {
-        // Update the existing beats per bar value
-        beatsPerBar = parseInt(beatsPerBarInput.val());
-
-        // Draw the new bars numbers labels
-        drawBarsNumbersLabels();
-
-        // Draw the new beats lines
-        drawBeatsLines();
-    }
-});
-
-// Called when the BPM input changes
-bpmInput.change(() => {
-    // Update value if and only if it is valid
-    if (checkValidity(bpmInput)) {
-        // Update the existing BPM value
-        bpm = parseInt(bpmInput.val());
-
-        // Draw the new bars numbers labels
-        drawBarsNumbersLabels();
-
-        // Draw the new beats lines
-        drawBeatsLines();
-    }
-});
-
-// Called when the music key changes
-musicKeyInput.change(() => {
-    // Update value if and only if it is valid
-    if (checkValidity(musicKeyInput)) {
-        // Update the existing music key
-        musicKey = musicKeyInput.val();
-
-        // Draw the new notes' labels
-        drawNotesLabels();
-    }
-});
-
-// Called when the canvas is clicked
-beatsCanvas.click((evt) => {
-    // Get the position which the mouse clicked
-    let rect = beatsCanvas[0].getBoundingClientRect();  // Absolute size of the beats canvas
-    let xPos = (evt.clientX - rect.left) / SPECTROGRAM_ZOOM_SCALE_X;  // Make it according to the base width
-    let yPos = (evt.clientY - rect.top) / SPECTROGRAM_ZOOM_SCALE_Y;  // Make it according to the base height
-
-    // Compute the frequency that the mouse click would correspond to
-    let estimatedFrequency = heightToFreq(yPos);
-
-    // Now estimate the note number
-    let estimatedNoteNumber = Math.round(freqToNoteNumber(estimatedFrequency));
-
-    // Convert the note number to a note
-    let note = noteNumberToNote(estimatedNoteNumber, "C");
-
-    // Convert any sharps to a hashtag
-    note["note"] = note["note"].replace("♯", "#");
-
-    // Play the note
-    pianoSynth.play(note["note"], note["octave"], 1);  // Plays for 1s using
+// BUTTONS' FUNCTIONS
+// Called when the "Delete Project" button is clicked
+deleteProjectBtn.click(() => {
+    deleteProjectModal.show();
 });
 
 // Called when the "Download Quicklink" button is clicked
@@ -455,6 +387,122 @@ saveProjectBtn.click(() => {
     });
 });
 
+// CANVAS FUNCTIONS
+// Called when the canvas is clicked
+beatsCanvas.click((evt) => {
+    // Get the position which the mouse clicked
+    let rect = beatsCanvas[0].getBoundingClientRect();  // Absolute size of the beats canvas
+    let xPos = (evt.clientX - rect.left) / SPECTROGRAM_ZOOM_SCALE_X;  // Make it according to the base width
+    let yPos = (evt.clientY - rect.top) / SPECTROGRAM_ZOOM_SCALE_Y;  // Make it according to the base height
+
+    // Compute the frequency that the mouse click would correspond to
+    let estimatedFrequency = heightToFreq(yPos);
+
+    // Now estimate the note number
+    let estimatedNoteNumber = Math.round(freqToNoteNumber(estimatedFrequency));
+
+    // Convert the note number to a note
+    let note = noteNumberToNote(estimatedNoteNumber, "C");
+
+    // Convert any sharps to a hashtag
+    note["note"] = note["note"].replace("♯", "#");
+
+    // Play the note
+    pianoSynth.play(note["note"], note["octave"], 1);  // Plays for 1s using
+});
+
+// DELETE PROJECT MODAL FUNCTIONS
+// Called when the "X" in the delete project modal is clicked
+closeModalButton.click(() => {
+    deleteProjectModal.hide();
+});
+
+// Called when the "Confirm Delete" button in the delete project modal is clicked
+confirmDeleteButton.click(() => {
+    // Send the delete request
+    $.ajax({
+        url: `/api/delete-project/${UUID}`,
+        method: "POST"
+    }).done((data) => {
+        // Parse the JSON data
+        data = JSON.parse(data);
+
+        // Redirect to the next page
+        window.location.href = data["url"];
+    });
+});
+
+// Called when the "Cancel Delete" button in the delete project modal is clicked
+cancelDeleteButton.click(() => {
+    deleteProjectModal.hide();
+});
+
+// When the user clicks anywhere outside of the modal, close it
+$(window).click((evt) => {
+    if (evt.target === deleteProjectModal[0]) {
+        deleteProjectModal.hide();
+    }
+});
+
+// INPUT FIELDS FUNCTIONS
+// Called when the beats offset input changes
+beatsOffsetInput.change(() => {
+    // Update value if and only if it is valid
+    if (checkValidity(beatsOffsetInput)) {
+        // Update the existing beats offset value
+        beatsOffset = parseFloat(beatsOffsetInput.val());
+
+        // Draw the new bars numbers labels
+        drawBarsNumbersLabels();
+
+        // Draw the new beats lines
+        drawBeatsLines();
+    }
+});
+
+// Called when the beats per bar input changes
+beatsPerBarInput.change(() => {
+    // Update value if and only if it is valid
+    if (checkValidity(beatsPerBarInput)) {
+        // Update the existing beats per bar value
+        beatsPerBar = parseInt(beatsPerBarInput.val());
+
+        // Draw the new bars numbers labels
+        drawBarsNumbersLabels();
+
+        // Draw the new beats lines
+        drawBeatsLines();
+    }
+});
+
+// Called when the BPM input changes
+bpmInput.change(() => {
+    // Update value if and only if it is valid
+    if (checkValidity(bpmInput)) {
+        // Update the existing BPM value
+        bpm = parseInt(bpmInput.val());
+
+        // Draw the new bars numbers labels
+        drawBarsNumbersLabels();
+
+        // Draw the new beats lines
+        drawBeatsLines();
+    }
+});
+
+// Called when the music key changes
+musicKeyInput.change(() => {
+    // Update value if and only if it is valid
+    if (checkValidity(musicKeyInput)) {
+        // Update the existing music key
+        musicKey = musicKeyInput.val();
+
+        // Draw the new notes' labels
+        drawNotesLabels();
+    }
+});
+
+// MAIN FUNCTION
 // Called when the document has been loaded
 $(document).ready(() => {
     // Set the range for the input fields

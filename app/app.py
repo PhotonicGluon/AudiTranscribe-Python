@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-25
+Updated on 2021-11-26
 
 Copyright © Ryan Kan
 
@@ -13,6 +13,7 @@ Description: Main flask application.
 import json
 import os
 import threading
+import shutil
 from collections import defaultdict
 from uuid import uuid4
 
@@ -148,6 +149,26 @@ def send_media(uuid, path):
 
 
 # API PAGES
+@app.route("/api/delete-project/<uuid>", methods=["POST"])
+def delete_project(uuid):
+    # Generate the UUID's folder's path
+    folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
+
+    # Check if a folder with that UUID exists
+    if not os.path.isdir(folder_path):
+        return abort(404)
+
+    # Delete the entire project folder
+    shutil.rmtree(folder_path)
+
+    # Redirect to main page
+    flash(f"Project with UUID {uuid} was deleted.", category="msg")
+    return json.dumps({
+        "outcome": "ok",
+        "url": url_for("main_page")
+    })
+
+
 @app.route("/api/download-quicklink/<uuid>", methods=["POST"])
 def download_quicklink(uuid):
     # Generate the UUID's folder's path

@@ -2,7 +2,7 @@
 /* Basic Styling */
 html {
     text-rendering: optimizeLegibility;
-    font-size: 16pt; /* This is the global font size */
+    font-size: 20px;
     font-family: "Arial", sans-serif;
     scroll-behavior: smooth;
 }
