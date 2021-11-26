@@ -503,8 +503,11 @@ musicKeyInput.change(() => {
 });
 
 // MAIN FUNCTION
-// Called when the document has been loaded
-$(document).ready(() => {
+// // Called when the document has been loaded
+// $(document).ready(() => {
+
+// Called when the document and canvases are ready
+$(document, beatsCanvas, notesCanvas, numbersCanvas, spectrogramCanvas).ready(() => {
     // Set the range for the input fields
     beatsPerBarInput.attr("min", BEATS_PER_BAR_RANGE[0]);
     beatsPerBarInput.attr("max", BEATS_PER_BAR_RANGE[1]);

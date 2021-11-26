@@ -6,6 +6,6 @@ Todo:
     - Update `README.md`
 
 Fixme:
-    - Fix spectrogram not showing occasionally
+    - (FIXED?) Fix spectrogram not showing occasionally
     - Beats lines take a long time to update if the spectrogram is long
     - Fix height of transcriber area not being the same as the sidebar height
