@@ -63,7 +63,8 @@ let numbersCtx = numbersCanvas[0].getContext("2d");
 let playheadCtx = playheadCanvas[0].getContext("2d");
 let spectrogramCtx = spectrogramCanvas[0].getContext("2d");
 
-// Spectrogram
+// Transcription area stuff
+let audio = new Audio();
 let spectrogram = new Image();
 
 // Piano
@@ -427,7 +428,7 @@ numbersCanvas.click((evt) => {
     playheadCanvas.css({left: xPos + notesCanvas[0].clientWidth});
 
     // Change the audio track's current time as well
-    AUDIO.currentTime = xPos / SPECTROGRAM_ZOOM_SCALE_X / PX_PER_SECOND;
+    audio.currentTime = xPos / SPECTROGRAM_ZOOM_SCALE_X / PX_PER_SECOND;
 
 });
 
@@ -531,12 +532,12 @@ $(document).keydown((evt) => {
         evt.preventDefault();
 
         // Toggle the audio
-        if (AUDIO.paused) {
+        if (audio.paused) {
             // Play the audio
-            AUDIO.play().then(_ => null);
+            audio.play().then(_ => null);
         } else {
             // Pause the audio
-            AUDIO.pause();
+            audio.pause();
         }
     }
 });
@@ -556,6 +557,16 @@ $(document).ready(() => {
 
     // Set piano synthesiser's volume
     Synth.setVolume(PIANO_VOLUME);
+
+    // Get the full audio file from the server
+    let request = new XMLHttpRequest();
+    request.open("GET", `/media/${UUID}/${STATUS["audio_file_name"]}`, true);
+    request.responseType = "blob";  // Need to do this in order for `url.createObjectURL` to work
+    request.onload = function () {
+        let url = window.URL || window.webkitURL;
+        audio.src = url.createObjectURL(this.response);
+    };
+    request.send();
 
     // Set the onload function of the spectrogram
     spectrogram.onload = () => {
@@ -635,9 +646,9 @@ $(document).ready(() => {
 
         // Create an interval which updates the position of the playhead
         setInterval(() => {
-            if (!AUDIO.paused) {
+            if (!audio.paused) {
                 // Calculate the position to place the playhead
-                let pos = AUDIO.currentTime * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X + notesCanvas[0].clientWidth;
+                let pos = audio.currentTime * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X + notesCanvas[0].clientWidth;
 
                 // Update position of playhead
                 playheadCanvas.css({left: pos});

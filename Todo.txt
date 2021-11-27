@@ -1,10 +1,9 @@
 Todo:
-    - Make clicking on the same row as a note to play that note
-        - Animate the notes canvas?
-    - Add loading screen whilst the spectrogram is still being loaded
     - Fill in the rest of the main page
     - Update `README.md`
 
 Fixme:
     - Beats lines take a long time to update if the spectrogram is long
     - Massive lag when switching back to some spectrograms
+        - https://stackoverflow.com/questions/20058242/html-5-canvas-causes-browser-to-lag-when-switching-tabs
+        - https://www.html5rocks.com/en/tutorials/canvas/performance/
