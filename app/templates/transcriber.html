@@ -95,11 +95,17 @@
                                    step="0.001" disabled>
                         </div>
                     </div>
+
+                    <hr>
+                    <div class="section">
+                        <label for="scroll-to-playback-head-checkbox">Scroll to Playback Head</label>
+                        <input class="user-input" type="checkbox" id="scroll-to-playback-head-checkbox" disabled>
+                    </div>
                 </div>
             </div>
 
             <div class="main-area">
-                <div class="transcription-area">
+                <div class="transcription-area" id="transcription-area">
                     <canvas id="playhead-canvas"></canvas>
                     <div class="row top-row" id="top-row">
                         <div class="notes-area" id="notes-area">

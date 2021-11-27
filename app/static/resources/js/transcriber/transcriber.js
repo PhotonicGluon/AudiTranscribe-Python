@@ -26,6 +26,7 @@ let beatsOffsetInput = $("#beats-offset-input");
 let beatsPerBarInput = $("#beats-per-bar-input");
 let bpmInput = $("#bpm-input");
 let musicKeyInput = $("#music-key-input");
+let scrollToPlaybackHeadCheckbox = $("#scroll-to-playback-head-checkbox");
 
 // Rows
 let topRow = $("#top-row");
@@ -34,6 +35,7 @@ let topRow = $("#top-row");
 let notesArea = $("#notes-area");
 let numbersArea = $("#numbers-area");
 let spectrogramArea = $("#spectrogram-area");
+let transcriptionArea = $("#transcription-area");
 
 // Buttons
 let deleteProjectBtn = $("#delete-project-btn");
@@ -669,6 +671,15 @@ $(document).ready(() => {
 
                 // Update position of playhead
                 playheadCanvas.css({left: pos});
+
+                // Scroll to that position
+                if (scrollToPlaybackHeadCheckbox[0].checked) {
+                    transcriptionArea[0].scroll({
+                        top: transcriptionArea[0].scrollTop,
+                        left: pos - notesCanvas[0].clientWidth - (transcriptionArea[0].clientWidth / 2),
+                        behavior: "auto"
+                    });
+                }
             }
         }, 1000 / PLAYHEAD_REFRESH_RATE);
 
