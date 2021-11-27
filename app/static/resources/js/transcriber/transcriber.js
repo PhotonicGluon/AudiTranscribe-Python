@@ -7,8 +7,14 @@ const NUMBERS_FONT_SIZE = 14;  // In pt
 const NOTES_FONT_NAME = "Arial";
 const NUMBERS_FONT_NAME = "Arial";
 
-const BEATS_LINES_WIDTH = 4;
+const BEATS_LINES_WIDTH = 2;
+const NOTES_LINES_WIDTH = 0.75;
 const PLAYHEAD_LINE_WIDTH = 10;
+
+const BEATS_LINES_COLOUR = "rgba(256, 256, 256, 0.5)";
+const BAR_LINES_COLOUR = "rgba(0, 256, 0, 0.5)";
+const NOTES_LINES_COLOUR = "rgba(256, 256, 256, 0.5)";
+const PLAYHEAD_LINE_COLOUR = "rgba(0, 256, 256, 1)";
 
 const PIANO_VOLUME = 0.2;  // As a number in the interval [0, 1]
 
@@ -27,6 +33,7 @@ let topRow = $("#top-row");
 // Areas
 let notesArea = $("#notes-area");
 let numbersArea = $("#numbers-area");
+let spectrogramArea = $("#spectrogram-area");
 
 // Buttons
 let deleteProjectBtn = $("#delete-project-btn");
@@ -190,16 +197,15 @@ function drawBeatsLines() {
     // Add lines for every beat
     for (let beatNum = 0; beatNum <= numBeats; beatNum++) {
         // Calculate position to place the beat
-        let pos = beatsOffset * PX_PER_SECOND +
-            beatNum * secondsPerBeat(bpm) * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+        let pos = beatsOffset * PX_PER_SECOND + beatNum * secondsPerBeat(bpm) * PX_PER_SECOND;
 
         // Draw the beat line on the beats canvas
         if (beatNum % beatsPerBar !== 0) {  // NOT perfectly on a bar
             beatsCtx.beginPath();
             beatsCtx.moveTo(pos, 0);
             beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
+            beatsCtx.strokeStyle = BEATS_LINES_COLOUR;
             beatsCtx.lineWidth = BEATS_LINES_WIDTH;
-            beatsCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";  // White with 50% opacity
             beatsCtx.stroke();
         }
     }
@@ -221,13 +227,13 @@ function drawBarsNumbersLabels() {
     // Add numbers' labels
     for (let barNum = 1; barNum <= numBars; barNum++) {
         // Calculate position to place the bar number label
-        let pos = beatsOffset * PX_PER_SECOND +
-            (barNum - 1) * secondsPerBeat(bpm) * beatsPerBar * PX_PER_SECOND * SPECTROGRAM_ZOOM_SCALE_X;
+        let beatPos = beatsOffset * PX_PER_SECOND + (barNum - 1) * secondsPerBeat(bpm) * beatsPerBar * PX_PER_SECOND;
+        let numPos = beatPos * SPECTROGRAM_ZOOM_SCALE_X;
 
         // Draw an ellipse
         numbersCtx.beginPath();
         numbersCtx.ellipse(
-            pos,
+            numPos,
             numbersCanvas[0].clientHeight / 2,
             20 * SPECTROGRAM_ZOOM_SCALE_X,
             20,
@@ -243,15 +249,15 @@ function drawBarsNumbersLabels() {
         numbersCtx.fillStyle = "#000000";
         numbersCtx.fillText(
             barNum.toString(),
-            pos,
+            numPos,
             numbersCanvas[0].clientHeight / 2 + 3 / 8 * NUMBERS_FONT_SIZE * 4 / 3  // 4/3 convert pt -> px
         );
 
         // Add the different coloured line on the beats canvas
         beatsCtx.beginPath();
-        beatsCtx.moveTo(pos, 0);
-        beatsCtx.lineTo(pos, spectrogramCanvas[0].height);
-        beatsCtx.strokeStyle = "rgba(0, 256, 0, 0.5)";  // Green with 50% opacity
+        beatsCtx.moveTo(beatPos, 0);
+        beatsCtx.lineTo(beatPos, spectrogramCanvas[0].height);
+        beatsCtx.strokeStyle = BAR_LINES_COLOUR;
         beatsCtx.lineWidth = BEATS_LINES_WIDTH;
         beatsCtx.stroke();
     }
@@ -571,18 +577,21 @@ $(document).ready(() => {
     // Set the onload function of the spectrogram
     spectrogram.onload = () => {
         // Compute the final size of the spectrogram
-        let finalSpectrogramWidth = spectrogram.width * SPECTROGRAM_ZOOM_SCALE_X;
-        let finalSpectrogramHeight = spectrogram.height * SPECTROGRAM_ZOOM_SCALE_Y;
+        let spectrogramWidth = spectrogram.width;
+        let spectrogramHeight = spectrogram.height;
+
+        let finalSpectrogramWidth = spectrogramWidth * SPECTROGRAM_ZOOM_SCALE_X;
+        let finalSpectrogramHeight = spectrogramHeight * SPECTROGRAM_ZOOM_SCALE_Y;
 
         // Resize the canvases to the correct dimensions
-        beatsCanvas[0].width = finalSpectrogramWidth;
-        beatsCanvas[0].height = finalSpectrogramHeight;
+        beatsCanvas[0].width = spectrogramWidth;
+        beatsCanvas[0].height = spectrogramHeight;
 
         notesCanvas[0].width = notesArea[0].clientWidth;
         notesCanvas[0].height = finalSpectrogramHeight;
 
-        spectrogramCanvas[0].width = finalSpectrogramWidth;
-        spectrogramCanvas[0].height = finalSpectrogramHeight;
+        spectrogramCanvas[0].width = spectrogramWidth;
+        spectrogramCanvas[0].height = spectrogramHeight;
 
         numbersCanvas[0].width = finalSpectrogramWidth;
         numbersCanvas[0].height = numbersArea[0].clientHeight;
@@ -590,11 +599,16 @@ $(document).ready(() => {
         playheadCanvas[0].width = PLAYHEAD_LINE_WIDTH / 2;
         playheadCanvas[0].height = finalSpectrogramHeight + numbersArea[0].clientHeight;
 
-        // Set the height of the rows
-        topRow.height(finalSpectrogramHeight);
+        // Set the spectrogram area's scale
+        spectrogramArea.css("transform", `scale(${SPECTROGRAM_ZOOM_SCALE_X}, ${SPECTROGRAM_ZOOM_SCALE_Y})`);
+        spectrogramArea.css("transform-origin", "left top");  // Make the origin the top left corner
 
-        // Set the contexts' scale
-        spectrogramCtx.scale(SPECTROGRAM_ZOOM_SCALE_X, SPECTROGRAM_ZOOM_SCALE_Y);
+        // Update the top row's dimensions
+        topRow.css("width", finalSpectrogramWidth);
+        topRow.css("height", finalSpectrogramHeight);
+
+        // Update the spectrogram area's dimensions
+        spectrogramArea.css("height", spectrogramHeight);
 
         // Draw image to the canvas
         spectrogramCtx.drawImage(spectrogram, 0, 0);
@@ -622,8 +636,8 @@ $(document).ready(() => {
 
             // Draw the line
             spectrogramCtx.lineTo(spectrogramCanvas[0].width, heightToMoveTo + getHeightDifference() / 2);
-            spectrogramCtx.strokeStyle = "rgba(256, 256, 256, 0.5)";  // White with 50% opacity
-            spectrogramCtx.lineWidth = 1;
+            spectrogramCtx.strokeStyle = NOTES_LINES_COLOUR;
+            spectrogramCtx.lineWidth = NOTES_LINES_WIDTH;
             spectrogramCtx.stroke();
         }
 
@@ -640,9 +654,12 @@ $(document).ready(() => {
         playheadCtx.beginPath();
         playheadCtx.moveTo(0, 0);
         playheadCtx.lineTo(0, playheadCanvas[0].height);
+        playheadCtx.strokeStyle = PLAYHEAD_LINE_COLOUR;
         playheadCtx.lineWidth = PLAYHEAD_LINE_WIDTH;
-        playheadCtx.strokeStyle = "#0ff";
         playheadCtx.stroke();
+
+        // Move the playhead line to the first bar
+        playheadCanvas.css({left: notesCanvas[0].clientWidth});
 
         // Create an interval which updates the position of the playhead
         setInterval(() => {

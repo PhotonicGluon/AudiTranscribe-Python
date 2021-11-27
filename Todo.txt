@@ -4,6 +4,7 @@ Todo:
 
 Fixme:
     - Beats lines take a long time to update if the spectrogram is long
-    - Massive lag when switching back to some spectrograms
+    - (PARTIAL FIX) Massive lag when loading/switching back to large spectrograms
         - https://stackoverflow.com/questions/20058242/html-5-canvas-causes-browser-to-lag-when-switching-tabs
         - https://www.html5rocks.com/en/tutorials/canvas/performance/
+        - https://stackoverflow.com/questions/60958785/how-to-fix-performance-lag-in-canvas-html5
