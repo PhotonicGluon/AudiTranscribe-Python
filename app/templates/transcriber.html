@@ -48,6 +48,7 @@
                         </a>
                     </h3>
                     <hr>
+                    <h3>File</h3>
                     <div class="section">
                         <a class="button" id="save-project-btn" download>Save Project</a>
                         <a class="button" id="download-quicklink-btn" download>Download Quicklink</a>
@@ -61,45 +62,56 @@
                         <!-- Music key input -->
                         <div class="section-input">
                             <label for="music-key-input">Music Key:</label>
-                            <select class="user-input" name="music-key" id="music-key-input" disabled>
-                                {% for key in music_keys %}
-                                    {% if key == "C" %}
-                                        <option value="C" selected>C</option>
-                                    {% else %}
-                                        <option value="{{ key }}">{{ key }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
+                            <div class="input-area">
+                                <select class="user-input" name="music-key" id="music-key-input" disabled>
+                                    {% for key in music_keys %}
+                                        {% if key == "C" %}
+                                            <option value="C" selected>C</option>
+                                        {% else %}
+                                            <option value="{{ key }}">{{ key }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
 
                         <!-- BPM input -->
                         <div class="section-input">
-                            <label for="bpm-input">Beats Per Minute (BPM):</label>
-                            <input class="user-input" type="number" id="bpm-input" value="{{ bpm }}"
-                                   placeholder="{{ bpm }}" disabled>
+                            <label for="bpm-input">Beats Per Minute:</label>
+                            <div class="input-area">
+                                <input class="user-input" type="number" id="bpm-input" value="{{ bpm }}"
+                                       placeholder="{{ bpm }}" disabled>
+                            </div>
                         </div>
 
                         <!-- Beats per bar input -->
-                        <!-- Todo: add hint text -->
                         <div class="section-input">
                             <label for="beats-per-bar-input">Beats Per Bar:</label>
-                            <input class="user-input" type="number" id="beats-per-bar-input" value="4" placeholder="4"
-                                   disabled>
+                            <div class="input-area">
+                                <input class="user-input" type="number" id="beats-per-bar-input" value="4"
+                                       placeholder="4" disabled>
+                                <small>Number of beats per musical bar.</small>
+                            </div>
                         </div>
 
                         <!-- Beats offset input -->
-                        <!-- Todo: add units text -->
                         <div class="section-input">
                             <label for="beats-offset-input">Beats Offset:</label>
-                            <input class="user-input" type="number" id="beats-offset-input" value="0" placeholder="0"
-                                   step="0.001" disabled>
+                            <div class="input-area">
+                                <input class="user-input" type="number" id="beats-offset-input" value="0"
+                                       placeholder="0" step="0.001" disabled>
+                                <small>Seconds before the actual composition starts.</small>
+                            </div>
                         </div>
                     </div>
 
                     <hr>
+                    <h3>Playback</h3>
                     <div class="section">
-                        <label for="scroll-to-playback-head-checkbox">Scroll to Playback Head</label>
-                        <input class="user-input" type="checkbox" id="scroll-to-playback-head-checkbox" disabled>
+                        <div class="section-input">
+                            <label for="scroll-to-playback-head-checkbox">Scroll to Playback Head</label>
+                            <input class="user-input" type="checkbox" id="scroll-to-playback-head-checkbox" disabled>
+                        </div>
                     </div>
                 </div>
             </div>

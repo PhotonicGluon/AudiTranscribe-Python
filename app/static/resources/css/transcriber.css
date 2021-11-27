@@ -59,11 +59,33 @@ hr {
 }
 
 /* Sidebar Styling */
+.input-area {
+    width: 50%;
+}
+
+.input-area * {
+    display: block;
+}
+
+.input-area select, input {
+    margin: auto;
+    width: 100%;
+}
+
+.input-area input[type="number"] {
+    width: calc(100% - 8px); /* 8px is for the buttons for number selection */
+}
+
+.input-area input:invalid {
+    color: red;
+}
+
 .main-menu {
     width: calc(25vw - 5px); /* Account for the border */
     height: 100vh;
     background: white;
     border-right: black 5px solid;
+    overflow: scroll;
 }
 
 .main-menu h1, .main-menu h3 {
@@ -86,20 +108,9 @@ hr {
     display: flex;
 }
 
-.section-input label, select, input[type="number"] {
+.section-input label {
     margin: auto;
-}
-
-.section-input label, select {
     width: 50%;
-}
-
-.section-input input[type="number"] {
-    width: calc(50% - 8px); /* 8px is for the buttons for number selection */
-}
-
-.section-input input:invalid {
-    color: red;
 }
 
 /* Row Styling */
