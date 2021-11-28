@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-26
+Updated on 2021-11-28
 
 Copyright © Ryan Kan
 
@@ -33,7 +33,7 @@ MAX_AUDIO_FILE_SIZE = {"Value": 10 ** 7, "Name": "10 MB"}
 ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()] + ["AUTR"]
 
 # Spectrogram settings
-BATCH_SIZE = 25
+BATCH_SIZE = 32
 PX_PER_SECOND = 100  # Number of pixels of the spectrogram dedicated to each second of audio
 SPECTROGRAM_HEIGHT = 720  # Height of the spectrogram, in pixels
 

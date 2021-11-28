@@ -1,6 +1,5 @@
 Todo:
     - Fill in the rest of the main page
-    - Update `README.md`
 
 Fixme:
     - Beats lines take a long time to update if the spectrogram is long
@@ -8,3 +7,8 @@ Fixme:
         - https://stackoverflow.com/questions/20058242/html-5-canvas-causes-browser-to-lag-when-switching-tabs
         - https://www.html5rocks.com/en/tutorials/canvas/performance/
         - https://stackoverflow.com/questions/60958785/how-to-fix-performance-lag-in-canvas-html5
+    - Fix blurry (horizontal note) lines
+
+Future work:
+    - Use a "dynamic Q transform" instead of a fast fourier transform?
+        - https://en.wikipedia.org/wiki/Constant-Q_transform

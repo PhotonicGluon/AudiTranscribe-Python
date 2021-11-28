@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-11-22
+Updated on 2021-11-28
 
 Copyright © Ryan Kan
 
@@ -116,7 +116,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
             frequencies,  # Want ALL the frequencies
             needed_spectrogram,
             shading="gouraud",
-            cmap="plasma"
+            cmap="viridis"
         )
 
         # Save the spectrogram to the image buffer
