@@ -12,3 +12,4 @@ Fixme:
 Future work:
     - Use a "dynamic Q transform" instead of a fast fourier transform?
         - https://en.wikipedia.org/wiki/Constant-Q_transform
+    - Support dynamic BPM
