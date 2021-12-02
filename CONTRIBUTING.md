@@ -46,6 +46,9 @@ However, for small issues such as
 - typo correction, white space and formatting changes
 - comment clean up you could submit an issue instead of a pull request.
 
+**NOTE: All (development) changes to *AudiTranscribe* should be pushed to the `development` branch first**. The `main`
+branch should be reserved for production builds.
+
 ## Reporting Bugs
 
 If you find a bug within AudiTranscribe, please [submit an issue](https://github.com/Ryan-Kan/AudiTranscribe/issues)
