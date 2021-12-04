@@ -3,12 +3,11 @@
 html {
     text-rendering: optimizeLegibility;
     font-size: 20px;
-    font-family: "Arial", sans-serif;
     scroll-behavior: smooth;
 }
 
 h1, h2 {
-    margin-top: 25px;
+    margin-top: 0;
     text-align: center;
     margin-bottom: 1px;
 }
@@ -18,8 +17,49 @@ nav {
     margin: 0 auto;
 }
 
+p {
+    line-height: 135%;
+}
+
 /* CLASS-BASED STYLING */
 /* General Styling */
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 25px !important;
+    margin: 20px;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+}
+
+.content {
+    padding-bottom: 15px;
+}
+
+.content-alt {
+    background-color: #f0f0f0;
+}
+
+.column {
+    width: 50%;
+    padding: 10px;
+}
+
+.column * {
+    width: 100%; /* Width of the item should be the width of the column */
+}
+
+.column img {
+    border: black 1px solid;
+}
+
+.column p {
+    text-align: justify;
+}
+
 .header {
     background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../img/header_background.png);
     background-size: cover;
@@ -35,6 +75,14 @@ nav {
     transform: translate(0%, -50%);
     text-align: center;
     color: white;
+}
+
+.row {
+    display: flex;
+}
+
+.serif-font {
+    font-family: "Times New Roman", "Times", serif;
 }
 
 /* Navbar */

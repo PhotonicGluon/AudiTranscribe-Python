@@ -15,9 +15,15 @@
     <!-- Include vendors' CSS files -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='vendors/css/normalize.css') }}">
 
-    <!-- Include My CSS files -->
+    <!-- Include my CSS files -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/css/base.css') }}">
     {% block stylesheets %}{% endblock %}
+
+    <!-- Load fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap"
+          rel="stylesheet">
 
     <!-- Load Header Scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

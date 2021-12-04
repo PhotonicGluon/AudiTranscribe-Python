@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Header -->
     <div class="header">
         <nav>
             <img src="{{ url_for('static', filename='resources/img/favicon.png') }}" alt="The Challenge's Logo"
@@ -25,7 +26,7 @@
         <div class="hero-box">
             <h1>AudiTranscribe</h1>
             <span>A music transcription application.</span>
-            <br>
+            <br><br>
             <h2>Ready to begin?</h2>
             <span>Upload an audio file <b>OR</b> upload a Quicklink (an <code>.autr</code> file).</span>
             <br>
@@ -35,6 +36,88 @@
             <span id="outcome-text"></span>
             <br><br>
             <em>Scroll down to read more about AudiTranscribe.</em>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="content">
+        <div class="container">
+            <br>
+            <h1>Features</h1>
+
+            <div class="row">
+                <div class="column">
+                    <h2>Audio &rightarrow; Spectrogram</h2>
+                    <p>
+                        Audio is hard to transcribe, especially with the number of components in any song.
+                        AudiTranscribe converts supported audio files into annotated spectrograms for easier audio
+                        transcription, saving both time and effort.
+                    </p>
+                </div>
+                <div class="column">
+                    <img src="{{ url_for('static', filename='resources/img/audio_to_spectrogram.png') }}"
+                         alt="Audio to Spectrogram">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="column">
+                    <img src="{{ url_for('static', filename='resources/gif/demo.gif') }}" alt="Demo GIF">
+                </div>
+                <div class="column">
+                    <h2>Play Notes Alongside the Music</h2>
+                    <p>
+                        See the frequency on the spectrogram and don't know how it sounds? No worries, simply click on
+                        that same row on the spectrogram, and it will be played. Now you can play notes alongside the
+                        song, without opening another application to do the job.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="column">
+                    <h2>Feel and See The Arrangement</h2>
+                    <p>
+                        The spectrogram shows all notes, ranging from the lowest note
+                        (<span class="serif-font">C<sub>0</sub></span>) to a note close to the limit of human hearing
+                        (<span class="serif-font">B<sub>9</sub></span>). AudiTranscribe shows bar lines and notes lines
+                        to see every frequency in the spectrogram.
+                    </p>
+                </div>
+                <div class="column">
+                    <img src="{{ url_for('static', filename='resources/img/full_height_spectrogram.png') }}"
+                         alt="Full Height Spectrogram">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why make AudiTranscribe? -->
+    <div class="content content-alt">
+        <div class="container">
+            <br>
+            <h1>Why Make AudiTranscribe?</h1>
+
+            <div class="row">
+                <div class="column card">
+                    <h2>Transcription By Ear is Hard</h2>
+                    <p>
+                        Tiny details in music pieces may be left out when transcribing by ear, and it takes practice to
+                        properly transcribe notes from a song. AudiTranscribe was created to ease this process and allow
+                        the average person to find out the notes of their favourite songs.
+                    </p>
+                </div>
+
+                <div class="column card">
+                    <h2>Transcription Services are Expensive</h2>
+                    <p>
+                        Professional music transcription services cost <b>a lot</b>, especially if you plan to use the
+                        transcription service a few times over a year. In that case, the cost of these services (which
+                        range from $40 to $120) are not worth it. AudiTranscribe is meant to be an Open-Source and free
+                        alternative.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
