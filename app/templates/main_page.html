@@ -19,7 +19,7 @@
     <!-- Header -->
     <div class="header">
         <nav>
-            <img src="{{ url_for('static', filename='resources/img/favicon.png') }}" alt="The Challenge's Logo"
+            <img src="{{ url_for('static', filename='resources/img/favicon.png') }}" alt="AudiTranscribe's Logo"
                  class="logo">
         </nav>
 
@@ -120,6 +120,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            Made with &heartsuit; by <a href="https://github.com/Ryan-Kan" target="_blank">Ryan Kan</a>.<br>
+            &copy; Copyright Ryan Kan.<br>
+            Licenses for this project and its constituent parts can be found <a href="{{ url_for('licenses') }}"
+                                                                                target="_blank">here</a>.
+        </p>
+    </footer>
 {% endblock %}
 
 {% block body_scripts %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}
+    AudiTranscribe - Licenses
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='resources/css/licenses.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <nav>
+            <a href="{{ url_for('main_page') }}">
+                <img src="{{ url_for('static', filename='resources/img/favicon.png') }}" alt="AudiTranscribe's Logo"
+                     width="50" class="logo">
+            </a>
+        </nav>
+
+        <div class="hero-box">
+            <h1>Licenses</h1>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="container">
+            <br>
+            <h1>AudiTranscribe's License</h1>
+
+            <div class="row card card-alt">
+                <p>
+                    MIT License<br>
+                    <br>
+                    Copyright (c) 2021 Ryan-Kan<br>
+                    <br>
+                    Permission is hereby granted, free of charge, to any person obtaining a copy
+                    of this software and associated documentation files (the "Software"), to deal
+                    in the Software without restriction, including without limitation the rights
+                    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+                    copies of the Software, and to permit persons to whom the Software is
+                    furnished to do so, subject to the following conditions:<br>
+                    <br>
+                    The above copyright notice and this permission notice shall be included in all
+                    copies or substantial portions of the Software.<br>
+                    <br>
+                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+                    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+                    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+                    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+                    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+                    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+                    SOFTWARE.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content content-alt">
+        <div class="container">
+            <br>
+            <h1>Constituent Resources' Licenses</h1>
+            <div class="row card">
+                <h2>AudioSynth</h2>
+                <p>
+                    The MIT License (MIT)<br>
+                    <br>
+                    Copyright (c) 2013 Keith William Horwood<br>
+                    <br>
+                    Permission is hereby granted, free of charge, to any person obtaining a copy of
+                    this software and associated documentation files (the "Software"), to deal in
+                    the Software without restriction, including without limitation the rights to
+                    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+                    the Software, and to permit persons to whom the Software is furnished to do so,
+                    subject to the following conditions:<br>
+                    <br>
+                    The above copyright notice and this permission notice shall be included in all
+                    copies or substantial portions of the Software.<br>
+                    <br>
+                    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+                    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+                    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+                    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+                    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+                    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+                </p>
+            </div>
+
+            <div class="row card">
+                <h2>Waveform SVG</h2>
+                <img src="{{ url_for('static', filename='vendors/img/noun-waveform-165177.png') }}" alt="Waveform Image"
+                     width="200" style="display: block; margin: auto">
+                <p>
+                    Waveform SVG File by Jack Zwanenburg from the Noun Project. Accessed from <a
+                        href="https://thenounproject.com/term/waveform/165177/">The Noun Project</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

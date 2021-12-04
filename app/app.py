@@ -315,6 +315,11 @@ def main_page():
                            accepted_file_types=ACCEPTED_FILE_TYPES)
 
 
+@app.route("/licenses")
+def licenses():
+    return render_template("licenses.html")
+
+
 @app.route("/transcriber/<uuid>")
 def transcriber(uuid):
     # Generate the UUID's folder's path

@@ -13,7 +13,7 @@ h1, h2 {
 }
 
 nav {
-    max-width: 1080px;
+    max-width: 90%;
     margin: 0 auto;
 }
 
@@ -125,6 +125,11 @@ p {
 
 .success-text {
     color: #28b062;
+}
+
+/* Footer */
+footer p {
+    text-align: center;
 }
 
 /* ELEMENT-BASED STYLING */

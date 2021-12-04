@@ -1,0 +1,64 @@
+/* MAIN STYLING */
+/* Basic Styling */
+h1, h2 {
+    margin-top: 0;
+    text-align: center;
+    margin-bottom: 1px;
+}
+
+nav {
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+
+/* CLASS-BASED STYLING */
+/* General Styling */
+.header {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../img/header_background.png);
+    background-size: cover;
+    background-position: center;
+    height: 20vh;
+    background-attachment: fixed;
+}
+
+.hero-box {
+    position: absolute;
+    top: 10vh;
+    transform: translate(calc(50vw - 50%), -50%);
+    color: white;
+}
+
+/* Main classes */
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 25px !important;
+    margin: 20px 0;
+}
+
+.card p {
+    text-align: justify;
+}
+
+.card-alt {
+    background-color: #f0f0f0;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+}
+
+.content {
+    padding-bottom: 15px;
+}
+
+.content-alt {
+    background-color: #f0f0f0;
+}
+
+.logo {
+    margin-top: 30px;
+    float: left;
+}

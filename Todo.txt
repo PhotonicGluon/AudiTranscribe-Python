@@ -1,6 +1,5 @@
 Todo:
     - Add detailed instructions on how to operate the application
-    - Add licenses to the website
 
 Fixme:
     - Beats lines take a long time to update if the spectrogram is long
