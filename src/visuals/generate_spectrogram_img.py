@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-11-28
+Updated on 2021-12-19
 
 Copyright © Ryan Kan
 
@@ -14,7 +14,7 @@ import io
 import math
 from typing import Optional
 
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import numpy as np
 from PIL import Image
 from tqdm import trange
@@ -24,8 +24,8 @@ from src.misc import NOTE_NUMBER_RANGE, note_number_to_freq
 
 # FUNCTIONS
 def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, times: np.ndarray, duration: float,
-                             progress: Optional[list] = None, batch_size: int = 100, px_per_second: int = 50,
-                             img_height=720, dpi: float = 100.) -> Image.Image:
+                             progress: Optional[list] = None, batch_size: int = 32, px_per_second: int = 50,
+                             img_height=720) -> Image.Image:
     """
     Generates a spectrogram image.
 
@@ -50,7 +50,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
         batch_size:
             Size of each batch when generating each image.
-            (Default: 100)
+            (Default: 32)
 
         px_per_second:
             Number of pixels of the spectrogram dedicated to each second of audio.
@@ -59,10 +59,6 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
         img_height:
             Height of the image, in pixels.
             (Default: 720)
-
-        dpi:
-            The resolution of the figure in dots-per-inch.
-            (Default: 100.0)
 
     Returns:
         spectrogram_image
@@ -75,7 +71,7 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
     assert batch_size <= num_samples, f"Maximum number of samples is {num_samples}, but batch size is {batch_size}."
 
     # Calculate the number of batches needed
-    num_batches = math.ceil(num_samples / batch_size)
+    num_batches = math.ceil(num_samples / batch_size) - 1  # Minus one because we need to join the last two batches
 
     # Determine what iterable to use
     if progress is None:
@@ -93,11 +89,6 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
         else:
             audio_length = times[-1] - times[(num_batches - 1) * batch_size]
 
-        # Create the figure and axis
-        fig = plt.Figure(figsize=(audio_length * px_per_second / dpi, img_height / dpi), dpi=dpi)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        fig.add_axes(ax)
-
         # Get the times and spectrogram section
         if batch_no != num_batches - 1:  # Not last batch
             needed_time = times[batch_no * batch_size: (batch_no + 1) * batch_size]
@@ -106,22 +97,33 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
             needed_time = times[(num_batches - 1) * batch_size:]
             needed_spectrogram = spectrogram[:, (num_batches - 1) * batch_size:]
 
-        # Plot the spectrogram
-        ax.set_axis_off()  # Remove axis labels
-        ax.set_yscale("symlog", base=2)
-        ax.set_ylim(note_number_to_freq(NOTE_NUMBER_RANGE[0]), note_number_to_freq(NOTE_NUMBER_RANGE[1]))
+        # Calculate the range for the log plot
+        spectrogram_range = [
+            math.log10(note_number_to_freq(NOTE_NUMBER_RANGE[0])),
+            math.log10(note_number_to_freq(NOTE_NUMBER_RANGE[1]))
+        ]
 
-        ax.pcolormesh(
-            needed_time,
-            frequencies,  # Want ALL the frequencies
-            needed_spectrogram,
-            shading="gouraud",
-            cmap="viridis"
+        # Plot the spectrogram
+        fig = go.Figure(data=go.Heatmap(
+            z=needed_spectrogram,
+            x=needed_time,
+            y=frequencies,
+            colorscale="Viridis"))
+
+        fig.update_xaxes(visible=False, showticklabels=False)
+        fig.update_yaxes(type="log", visible=False, showticklabels=False, range=spectrogram_range)
+        fig.update_traces(showscale=False)
+
+        fig.update_layout(
+            autosize=False,
+            width=int(audio_length * px_per_second),
+            height=img_height,
+            margin=dict(l=0, r=0, b=0, t=0, pad=0)
         )
 
         # Save the spectrogram to the image buffer
         img_buf = io.BytesIO()
-        fig.savefig(img_buf, bbox_inches="tight", pad_inches=0)  # No whitespace
+        fig.write_image(img_buf, format="png")
 
         # Open the image buffer in Pillow
         img = Image.open(img_buf)
