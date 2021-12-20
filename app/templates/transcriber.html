@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    AudiTranscribe - {{ file_name }}
+    AudiTranscribe - {{ file_name_proper }}
 {% endblock %}
 
 {% block stylesheets %}
@@ -44,7 +44,7 @@
                     <h3>
                         File:
                         <a href="{{ url_for('send_media', uuid=uuid, path=file_name) }}" download>
-                            <code>{{ file_name }}</code>
+                            <code>{{ file_name_proper }}</code>
                         </a>
                     </h3>
                     <hr>
@@ -153,7 +153,7 @@
     {% else %}
         <div class="overlay" id="overlay">
             <div class="progress-area">
-                <span>Processing <code>{{ file_name }}</code></span>
+                <span>Processing <code>{{ file_name_proper }}</code></span>
                 <div id="spectrogram-progress-bar"></div>
             </div>
         </div>

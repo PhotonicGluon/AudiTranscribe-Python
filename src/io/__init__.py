@@ -1,2 +1,4 @@
-from .audio_to_wav import audio_to_wav, SUPPORTED_AUDIO_EXTENSIONS
+from .audio_to_audiosegment import SUPPORTED_AUDIO_EXTENSIONS, audio_to_audiosegment
+from .audiosegment_to_mp3 import audiosegment_to_mp3
+from .audiosegment_to_wav import audiosegment_to_wav
 from .wav_to_samples import wav_to_samples

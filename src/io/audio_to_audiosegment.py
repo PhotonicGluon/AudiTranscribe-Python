@@ -1,12 +1,12 @@
 """
-audio_to_wav.py
+audio_to_audiosegment.py
 
-Created on 2021-11-16
-Updated on 2021-11-16
+Created on 2021-12-20
+Updated on 2021-12-20
 
 Copyright © Ryan Kan
 
-Description: Converts an audio file to a WAV file.
+Description: Converts a supported audio file into an `AudioSegment` object for further processing.
 """
 
 # IMPORTS
@@ -25,17 +25,17 @@ SUPPORTED_AUDIO_EXTENSIONS = {
 
 
 # FUNCTIONS
-def audio_to_wav(audio_file: str) -> str:
+def audio_to_audiosegment(audio_file: str) -> AudioSegment:
     """
-    Converts an audio file into a WAV file for further processing.
+    Converts an audio file into an `AudioSegment` object for further processing.
 
     Args:
         audio_file:
            Path to the audio file.
 
     Returns:
-        str:
-           Path to the WAV file.
+        AudioSegment:
+            The audio object.
 
     Raises:
         AssertionError:
@@ -54,8 +54,5 @@ def audio_to_wav(audio_file: str) -> str:
     assert extension in SUPPORTED_AUDIO_EXTENSIONS, f"The extension {extension} is currently unsupported by the " \
                                                     "program."
 
-    # Convert the audio file into a WAV file
-    AudioSegment.from_file(audio_file, SUPPORTED_AUDIO_EXTENSIONS[extension]).export(f"{filename}.wav", "wav")
-
-    # Return the path to the WAV file
-    return f"{filename}.wav"
+    # Convert the audio file into an `AudioSegment` object and return it
+    return AudioSegment.from_file(audio_file, SUPPORTED_AUDIO_EXTENSIONS[extension])

@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-11-28
+Updated on 2021-12-20
 
 Copyright © Ryan Kan
 
@@ -12,8 +12,9 @@ Description: Main flask application.
 # IMPORTS
 import json
 import os
-import threading
+import re
 import shutil
+import threading
 from collections import defaultdict
 from uuid import uuid4
 
@@ -23,7 +24,8 @@ from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 
 from src.audio import estimate_bpm, get_audio_length, wav_samples_to_spectrogram
-from src.io import audio_to_wav, wav_to_samples, SUPPORTED_AUDIO_EXTENSIONS
+from src.io import audio_to_audiosegment, audiosegment_to_mp3, audiosegment_to_wav, wav_to_samples, \
+    SUPPORTED_AUDIO_EXTENSIONS
 from src.misc import MUSIC_KEYS, NOTE_NUMBER_RANGE
 from src.visuals import generate_spectrogram_img
 
@@ -31,6 +33,7 @@ from src.visuals import generate_spectrogram_img
 # File constants
 MAX_AUDIO_FILE_SIZE = {"Value": 10 ** 7, "Name": "10 MB"}
 ACCEPTED_FILE_TYPES = [x.upper()[1:] for x in SUPPORTED_AUDIO_EXTENSIONS.keys()] + ["AUTR"]
+CBR_MP3_BITRATE = 192  # In thousands
 
 # Spectrogram settings
 BATCH_SIZE = 32
@@ -63,7 +66,7 @@ except OSError:
     pass
 
 # GLOBAL VARIABLES
-progressOfSpectrograms = defaultdict(list)  # Use a list to allow for variable sharing
+processingThreads = defaultdict(lambda: {"progress": []})
 
 
 # HELPER FUNCTIONS
@@ -78,14 +81,34 @@ def processing_file(file: str, uuid: str, progress: list):
     # Split the file into its filename and extension
     filename, extension = os.path.splitext(file)
 
-    # If the file is not a WAV file then process it
+    # Convert the audio file into an `AudioSegment` object
+    audiosegment = audio_to_audiosegment(os.path.join(folder_path, file))
+
+    # If the file is not a WAV file then convert it into one
     if extension[1:].upper() != "WAV":
-        file_wav = audio_to_wav(os.path.join(folder_path, file))
+        audiosegment_to_wav(audiosegment, os.path.join(folder_path, filename))
+        file_wav = os.path.join(folder_path, filename + ".wav")
     else:
         file_wav = os.path.join(folder_path, file)
 
+    # Convert the audio file into a CBR MP3
+    audiosegment_to_mp3(audiosegment, os.path.join(folder_path, filename + "_cbr"), bitrate=CBR_MP3_BITRATE)
+
+    # Update the status file on the audio file to reference
+    update_status_file(
+        os.path.join(folder_path, "status.yaml"),
+        audio_file_name=filename + "_cbr.mp3"
+    )
+
     # Now split the WAV file into samples
     samples, sample_rate = wav_to_samples(file_wav)
+
+    # We can now delete the old file and the WAV file
+    try:
+        os.remove(os.path.join(folder_path, file))
+        os.remove(file_wav)
+    except OSError:  # The files may be one and the same
+        pass
 
     # Calculate the duration of the audio
     duration = get_audio_length(samples, sample_rate)
@@ -112,12 +135,8 @@ def processing_file(file: str, uuid: str, progress: list):
         spectrogram_generated=True
     )
 
-    # Remove the WAV file if the original uploaded file was NOT the WAV file
-    if extension[1:].upper() != "WAV":
-        os.remove(file_wav)
-
     # Delete the progress object, signifying that the spectrogram processes are done
-    del progressOfSpectrograms[uuid]
+    del processingThreads[uuid]
     del progress
 
 
@@ -185,7 +204,7 @@ def download_quicklink(uuid):
 @app.route("/api/query-process/<uuid>", methods=["POST"])
 def query_process(uuid):
     # Get the progress associated with that UUID
-    progress = progressOfSpectrograms[uuid]
+    progress = processingThreads[uuid]["progress"]
 
     # Check if the progress exists
     if progress:
@@ -292,7 +311,8 @@ def upload_file():
     # Create a blank status dictionary
     status_blank = {
         "uuid": uuid,
-        "audio_file_name": file.filename,
+        "original_file_name": file.filename,
+        "audio_file_name": None,
         "spectrogram_generated": False
     }
 
@@ -334,27 +354,39 @@ def transcriber(uuid):
     with open(os.path.join(folder_path, "status.yaml"), "r") as f:
         status = yaml.load(f, yaml.Loader)
 
-    # Check whether the spectrogram has been generated or not
-    spectrogram_generated = status["spectrogram_generated"]
+    # Check whether the CBR MP3 file was created yet
+    audio_file_name = status["audio_file_name"]
 
-    if not spectrogram_generated:
-        # Create a location to store the spectrogram process
-        progressOfSpectrograms[uuid].append(None)  # One-element list for data sharing
+    if audio_file_name is None:  # CBR MP3 not yet created
+        # Create a location to store the spectrogram generation progress
+        processingThreads[uuid]["progress"].append(None)  # One-element list for data sharing
 
-        # Start a multiprocessing thread
-        process = threading.Thread(target=processing_file,
-                                   args=(status["audio_file_name"], uuid, progressOfSpectrograms[uuid]))
-        process.start()
+        # Start a multiprocessing thread and save it to the master dictionary
+        thread = threading.Thread(target=processing_file,
+                                  args=(status["original_file_name"], uuid, processingThreads[uuid]["progress"]))
+        thread.start()
+        processingThreads[uuid]["thread"] = thread
 
         # Render the template
-        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated, uuid=uuid,
-                               file_name=status["audio_file_name"])
+        return render_template("transcriber.html", spectrogram_generated=False, uuid=uuid,
+                               file_name=status["original_file_name"], file_name_proper=status["original_file_name"])
     else:
-        # Render the template with the variables
-        return render_template("transcriber.html", spectrogram_generated=spectrogram_generated, uuid=uuid,
-                               file_name=status["audio_file_name"], status=json.dumps(status),
-                               beats_per_bar_range=BEATS_PER_BAR_RANGE, bpm_range=BPM_RANGE, music_keys=MUSIC_KEYS,
-                               note_number_range=NOTE_NUMBER_RANGE, px_per_second=PX_PER_SECOND)
+        # Check whether the spectrogram has been generated or not
+        spectrogram_generated = status["spectrogram_generated"]
+
+        if not spectrogram_generated:
+            # Render the template
+            return render_template("transcriber.html", spectrogram_generated=False, uuid=uuid,
+                                   file_name=status["audio_file_name"],
+                                   file_name_proper=re.sub(r"_cbr(?!.*_cbr)+", "", status["audio_file_name"]))
+        else:
+            # Render the template with the variables
+            return render_template("transcriber.html", spectrogram_generated=True, uuid=uuid,
+                                   file_name=status["audio_file_name"],
+                                   file_name_proper=re.sub(r"_cbr(?!.*_cbr)+", "", status["audio_file_name"]),
+                                   status=json.dumps(status), beats_per_bar_range=BEATS_PER_BAR_RANGE,
+                                   bpm_range=BPM_RANGE, music_keys=MUSIC_KEYS, note_number_range=NOTE_NUMBER_RANGE,
+                                   px_per_second=PX_PER_SECOND)
 
 
 # TESTING CODE
