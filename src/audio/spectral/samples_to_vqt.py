@@ -1,12 +1,12 @@
 """
-samples_to_cqt.py
+samples_to_vqt.py
 
 Created on 2021-12-21
 Updated on 2021-12-21
 
 Copyright © Ryan Kan
 
-Description: Converts the samples of a WAV file into a constant-Q transform (CQT) matrix.
+Description: Converts the samples of a WAV file into a variable-Q transform (VQT) matrix.
 """
 
 # IMPORTS
@@ -19,10 +19,10 @@ from src.misc import note_number_to_freq
 
 
 # FUNCTIONS
-def samples_to_cqt(sample_rate: float, samples: np.array, hop_length: int = 1024, f_min=note_number_to_freq(0),
+def samples_to_vqt(sample_rate: float, samples: np.array, hop_length: int = 1024, f_min=note_number_to_freq(0),
                    n_bins: int = 600, bins_per_octave=60) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Converts the samples of a WAV file into a CQT matrix.
+    Converts the samples of a WAV file into a VQT matrix.
 
     Args:
         sample_rate:
@@ -32,7 +32,7 @@ def samples_to_cqt(sample_rate: float, samples: np.array, hop_length: int = 1024
             Data read from WAV file.
 
         hop_length:
-            Number of samples between successive CQT columns.
+            Number of samples between successive VQT columns.
             (Default= 1024)
 
         f_min:
@@ -58,25 +58,25 @@ def samples_to_cqt(sample_rate: float, samples: np.array, hop_length: int = 1024
             Array of sample times.
     """
 
-    # Generate the CQT of the audio file
-    cqt = librosa.cqt(samples, sr=sample_rate, hop_length=hop_length, fmin=f_min, n_bins=n_bins,
+    # Generate the VQT of the audio file
+    vqt = librosa.vqt(samples, sr=sample_rate, hop_length=hop_length, fmin=f_min, n_bins=n_bins,
                       bins_per_octave=bins_per_octave)
 
-    # Keep only the magnitude of the complex numbers from the CQT
-    cqt = np.abs(cqt)
+    # Keep only the magnitude of the complex numbers from the VQT
+    vqt = np.abs(vqt)
 
-    # Get the possible frequencies from the CQT
+    # Get the possible frequencies from the VQT
     frequencies = librosa.cqt_frequencies(n_bins, f_min, bins_per_octave=bins_per_octave)
 
     # Convert the amplitude of the sound to decibels
-    cqt = librosa.amplitude_to_db(cqt, ref=np.max)
+    vqt = librosa.amplitude_to_db(vqt, ref=np.max)
 
     # Get the time data
-    frame_numbers = np.arange(cqt.shape[1])  # Get the time axis size
+    frame_numbers = np.arange(vqt.shape[1])  # Get the time axis size
     times = librosa.frames_to_time(frame_numbers, sr=sample_rate, hop_length=hop_length)
 
-    # Return the CQT, frequencies and times
-    return cqt, frequencies, times
+    # Return the VQT, frequencies and times
+    return vqt, frequencies, times
 
 
 # TESTING CODE
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     samples_, sample_rate_ = wav_to_samples("../../../Testing Files/Melancholy.wav")
 
     # Convert to spectrogram
-    spec, freq, time = samples_to_cqt(sample_rate_, samples_)
+    spec, freq, time = samples_to_vqt(sample_rate_, samples_)
 
     # Print them
     print(spec)
