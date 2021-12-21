@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-12-20
+Updated on 2021-12-21
 
 Copyright © Ryan Kan
 
@@ -23,7 +23,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 
-from src.audio import estimate_bpm, get_audio_length, wav_samples_to_spectrogram
+from src.audio import estimate_bpm, get_audio_length, samples_to_cqt
 from src.io import audio_to_audiosegment, audiosegment_to_mp3, audiosegment_to_wav, wav_to_samples, \
     SUPPORTED_AUDIO_EXTENSIONS
 from src.misc import MUSIC_KEYS, NOTE_NUMBER_RANGE
@@ -37,7 +37,7 @@ CBR_MP3_BITRATE = 192  # In thousands
 
 # Spectrogram settings
 BATCH_SIZE = 32
-PX_PER_SECOND = 100  # Number of pixels of the spectrogram dedicated to each second of audio
+PX_PER_SECOND = 120  # Number of pixels of the spectrogram dedicated to each second of audio
 SPECTROGRAM_HEIGHT = 720  # Height of the spectrogram, in pixels
 
 # Music settings
@@ -114,7 +114,7 @@ def processing_file(file: str, uuid: str, progress: list):
     duration = get_audio_length(samples, sample_rate)
 
     # Convert the samples into a spectrogram
-    spectrogram, frequencies, times = wav_samples_to_spectrogram(sample_rate, samples)
+    spectrogram, frequencies, times = samples_to_cqt(sample_rate, samples)
 
     # Convert the spectrogram data into a spectrogram image
     image = generate_spectrogram_img(spectrogram, frequencies, times, duration, progress=progress,

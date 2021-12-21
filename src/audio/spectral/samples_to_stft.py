@@ -1,12 +1,12 @@
 """
-wav_to_spectrogram.py
+samples_to_stft.py
 
 Created on 2021-11-14
-Updated on 2021-11-22
+Updated on 2021-12-21
 
 Copyright © Ryan Kan
 
-Description: Converts the samples of a WAV file into a spectrogram-like object.
+Description: Converts the samples of a WAV file into a short-time fourier transform (STFT) matrix.
 """
 
 # IMPORTS
@@ -17,10 +17,10 @@ import numpy as np
 
 
 # FUNCTIONS
-def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int = 16384,
-                               hop_length: int = 1024) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def samples_to_stft(sample_rate: float, samples: np.array, n_fft: int = 16384,
+                    hop_length: int = 1024) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Converts the samples of a WAV file into a spectrogram-like object.
+    Converts the samples of a WAV file into a STFT matrix.
 
     Args:
         sample_rate:
@@ -42,7 +42,7 @@ def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int
             (Default: 1024)
 
     Returns:
-        spectrogram:
+        stft:
             Matrix of short-term Fourier transform coefficients, i.e. the spectrogram data.
 
         frequencies:
@@ -68,7 +68,7 @@ def wav_samples_to_spectrogram(sample_rate: float, samples: np.array, n_fft: int
     frame_numbers = np.arange(spectrogram.shape[1])  # Get the time axis size
     times = librosa.frames_to_time(frame_numbers, sr=sample_rate, hop_length=hop_length, n_fft=n_fft)
 
-    # Return the spectrogram, frequencies and times
+    # Return the STFT, frequencies and times
     return spectrogram, frequencies, times
 
 
@@ -78,10 +78,10 @@ if __name__ == "__main__":
     from src.io import wav_to_samples
 
     # Read the testing WAV file
-    samples_, sample_rate_ = wav_to_samples("../../Testing Files/Fly.wav")
+    samples_, sample_rate_ = wav_to_samples("../../../Testing Files/Melancholy.wav")
 
     # Convert to spectrogram
-    spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
+    spec, freq, time = samples_to_stft(sample_rate_, samples_)
 
     # Print them
     print(spec)

@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-12-19
+Updated on 2021-12-21
 
 Copyright © Ryan Kan
 
@@ -14,8 +14,8 @@ import io
 import math
 from typing import Optional
 
-import plotly.graph_objects as go
 import numpy as np
+import plotly.graph_objects as go
 from PIL import Image
 from tqdm import trange
 
@@ -81,6 +81,9 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 
     # Generate all images
     images = []
+
+    import time
+    s = time.time()
 
     for batch_no in iterable:
         # Get the length of the audio
@@ -151,6 +154,8 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
     # Now resize the image to fit the duration
     final_img = final_img.resize((round(duration * px_per_second), img_height))
 
+    e = time.time()
+    print("Time taken is", e - s)
     # Return the pillow image
     return final_img
 
@@ -158,14 +163,14 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
 # TESTING CODE
 if __name__ == "__main__":
     # Imports
-    from src.audio import wav_samples_to_spectrogram, get_audio_length
+    from src.audio import samples_to_cqt, get_audio_length
     from src.io import wav_to_samples
 
     # Read the testing WAV file
     samples_, sample_rate_ = wav_to_samples("../../Testing Files/Increments.wav")
 
     # Convert to spectrogram
-    spec, freq, time = wav_samples_to_spectrogram(sample_rate_, samples_)
+    spec, freq, time = samples_to_cqt(sample_rate_, samples_)
 
     # Calculate the duration of the audio file
     duration_ = get_audio_length(samples_, sample_rate_)

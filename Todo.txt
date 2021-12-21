@@ -1,5 +1,6 @@
 Todo:
     - Add detailed instructions on how to operate the application
+    - Depreciate the STFT spectrogram code
 
 Fixme:
     - Beats lines take a long time to update if the spectrogram is long
@@ -10,6 +11,4 @@ Fixme:
     - Fix blurry (horizontal note) lines
 
 Future work:
-    - Use a "dynamic Q transform" instead of a fast fourier transform?
-        - https://en.wikipedia.org/wiki/Constant-Q_transform
     - Support dynamic BPM
