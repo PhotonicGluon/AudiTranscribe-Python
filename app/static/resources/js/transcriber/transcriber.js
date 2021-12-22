@@ -348,7 +348,7 @@ downloadQuicklinkBtn.click(() => {
         let link = url.createObjectURL(blob);
 
         // Get the file name of the audio file
-        let splitFileName = FILE_NAME.split(".");
+        let splitFileName = FILE_NAME_PROPER.split(".");
         let filename = splitFileName.slice(0, splitFileName.length - 1).join(".") + ".autr";
 
         // Download the file
