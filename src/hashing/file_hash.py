@@ -6,17 +6,17 @@ Updated on 2022-01-24
 
 Copyright © Ryan Kan
 
-Description: Generates a SHA256 hash based on file contents.
+Description: Generates a SHA hash based on file contents.
 """
 
 # IMPORTS
-from hashlib import sha256
+from hashlib import sha1
 
 
 # FUNCTIONS
 def generate_hash_from_file(file_path: str) -> str:
     """
-    Generates a SHA256 hash based on the contents of the file at `file_path`.
+    Generates a SHA hash based on the contents of the file at `file_path`.
 
     Args:
         file_path:
@@ -27,16 +27,16 @@ def generate_hash_from_file(file_path: str) -> str:
     """
 
     # Define hash object
-    sha256_hash = sha256()
+    sha_hash = sha1()
 
     # Read file bytes
     with open(file_path, "rb") as f:
-        # Read and update hash string value in blocks of 4 KiB
-        for byte_block in iter(lambda: f.read(4096), b""):  # The sentinel value is a null byte
-            sha256_hash.update(byte_block)
+        # Read and update hash string value in blocks of 8 KiB
+        for byte_block in iter(lambda: f.read(8192), b""):  # The sentinel value is a null byte
+            sha_hash.update(byte_block)
 
     # Output the hex digest of the file
-    return sha256_hash.hexdigest()
+    return sha_hash.hexdigest()
 
 
 # TESTING CODE
