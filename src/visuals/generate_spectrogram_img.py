@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2021-12-21
+Updated on 2022-01-24
 
 Copyright © Ryan Kan
 
@@ -82,9 +82,6 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
     # Generate all images
     images = []
 
-    import time
-    s = time.time()
-
     for batch_no in iterable:
         # Get the length of the audio
         if batch_no != num_batches - 1:  # Not last batch
@@ -154,8 +151,6 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
     # Now resize the image to fit the duration
     final_img = final_img.resize((round(duration * px_per_second), img_height))
 
-    e = time.time()
-    print("Time taken is", e - s)
     # Return the pillow image
     return final_img
 
