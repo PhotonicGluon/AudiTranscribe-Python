@@ -1,5 +1,7 @@
 Todo:
     - Add detailed instructions on how to operate the application
+    - Depreciate random hash
+    - Shorten UUIDs
     - Depreciate the STFT spectrogram code
 
 Fixme:

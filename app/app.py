@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2021-12-21
+Updated on 2022-01-24
 
 Copyright © Ryan Kan
 
@@ -16,7 +16,6 @@ import re
 import shutil
 import threading
 from collections import defaultdict
-from uuid import uuid4
 
 import yaml
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, send_from_directory, abort
@@ -24,6 +23,7 @@ from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 
 from src.audio import estimate_bpm, get_audio_length, samples_to_vqt
+from src.hashing import generate_hash_from_file
 from src.io import audio_to_audiosegment, audiosegment_to_mp3, audiosegment_to_wav, wav_to_samples, \
     SUPPORTED_AUDIO_EXTENSIONS
 from src.misc import MUSIC_KEYS, NOTE_NUMBER_RANGE
@@ -275,21 +275,31 @@ def upload_file():
             "url": url_for("transcriber", uuid=existing_uuid)
         })
 
-    # If it is not an existing project, create a folder for this specific audio
-    while True:
-        # Generate a UUID for the file
-        uuid = str(uuid4())
+    # If not existing project, save the file
+    initial_file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+    file.save(initial_file_path)
 
-        # Create a folder for the UUID
-        try:
-            folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
-            os.mkdir(folder_path)
-            break
-        except OSError:  # Folder exists
-            pass
+    # Generate the file's UUID based on its contents
+    uuid = generate_hash_from_file(initial_file_path)
 
-    # Save the file
-    file.save(os.path.join(folder_path, file.filename))
+    # Check if a UUID like that already exists
+    try:
+        folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
+        os.mkdir(folder_path)
+    except OSError:  # Folder exists => UUID exists => There already exists an existing file
+        # Delete the file on the MAIN directory
+        os.remove(initial_file_path)
+
+        # Provide the link to the existing page
+        return json.dumps({
+            "outcome": "ok",
+            "msg": "Redirecting to existing project.",
+            "url": url_for("transcriber", uuid=uuid)
+        })
+
+    # If it is not an existing file, move the file into the created directory
+    final_file_path = os.path.join(folder_path, file.filename)
+    shutil.move(initial_file_path, final_file_path)
 
     # Get the file's extension
     _, extension = os.path.splitext(file.filename)
