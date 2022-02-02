@@ -2,7 +2,7 @@
 audiosegment_to_wav.py
 
 Created on 2021-11-16
-Updated on 2021-12-20
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -24,11 +24,7 @@ def audiosegment_to_wav(audiosegment: AudioSegment, filename: str):
 
         filename:
             Filename of the WAV file.
-            This is JUST THE FILE NAME, without the extension of ".wav".
-
-    Returns:
-        str:
-           Path to the WAV file.
+            This is JUST THE FILE NAME, without the extension of the file.
     """
 
     audiosegment.export(f"{filename}.wav", format="wav")

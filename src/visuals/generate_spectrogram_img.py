@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2022-01-24
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -43,25 +43,22 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
             Duration of the audio sample. This is in seconds.
 
         progress:
-            List object to share the spectrogram processing process with other threads.
+            List object to share the spectrogram generation process with other threads.
             A list is used instead of a standard tuple to utilise address assignment of lists, and so the data can be
             shared across threads.
-            (Default: None)
 
         batch_size:
             Size of each batch when generating each image.
-            (Default: 32)
 
         px_per_second:
             Number of pixels of the spectrogram dedicated to each second of audio.
-            (Default: 50)
 
         img_height:
             Height of the image, in pixels.
-            (Default: 720)
 
     Returns:
-        spectrogram_image
+        Image.Image:
+            Pillow image, representing the generated spectrogram.
     """
 
     # Get the number of samples

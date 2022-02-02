@@ -2,7 +2,7 @@
 note_number_to_freq.py
 
 Created on 2021-11-18
-Updated on 2021-11-19
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -24,10 +24,9 @@ def note_number_to_freq(note_number: int) -> float:
             Note that a note number of 0 means the key C0.
 
     Returns:
-        frequency
-
-    Notes:
-        - This assumes that the notes have been tuned to A440.
+        float:
+            Frequency of the note with that note number.
+            The returned frequency assumes that the notes have been tuned to A440.
     """
 
     return 2 ** ((note_number - 57) / 12) * 440

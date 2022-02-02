@@ -2,7 +2,7 @@
 samples_to_vqt.py
 
 Created on 2021-12-21
-Updated on 2021-12-21
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -33,29 +33,20 @@ def samples_to_vqt(sample_rate: float, samples: np.array, hop_length: int = 1024
 
         hop_length:
             Number of samples between successive VQT columns.
-            (Default= 1024)
 
         f_min:
             Minimum frequency. Defaults to the frequency of note C0.
-            (Default = `note_number_to_freq(0)`)
 
         n_bins:
             Number of frequency bins starting from `f_min`.
-            (Default = 480)
 
         bins_per_octave:
             Number of frequency bins dedicated to each octave.
-            (Default = 48)
 
     Returns:
-        cqt:
-            Constant-Q value each frequency at each time, i.e. spectrogram datta.
-
-        frequencies:
-            Array of sample frequencies.
-
-        times:
-            Array of sample times.
+        Tuple[np.ndarray, np.ndarray, np.ndarray]:
+            Triplet containing the Variable-Q Matrix, the array of sample frequencies, and the array of sample times in
+            this order.
     """
 
     # Generate the VQT of the audio file

@@ -2,7 +2,7 @@
 generate_hash_from_file.py
 
 Created on 2022-01-22
-Updated on 2022-01-24
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -23,7 +23,8 @@ def generate_hash_from_file(file_path: str) -> str:
             Path to the file.
 
     Returns:
-        SHA256 hash
+        str:
+            The SHA1 hash of the file.
     """
 
     # Define hash object

@@ -2,7 +2,7 @@
 wav_to_samples.py
 
 Created on 2021-11-14
-Updated on 2021-11-15
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -12,8 +12,8 @@ Description: Reads in a WAV file and returns its samples and sample rate.
 # IMPORTS
 from typing import Optional, Tuple
 
-import numpy as np
 import librosa
+import numpy as np
 
 
 # FUNCTIONS
@@ -26,17 +26,14 @@ def wav_to_samples(file_path: str, offset: float = 0., duration: Optional[float]
             Path to the WAV file.
 
         offset:
-            Start reading after this time (in seconds).
+            Offset after which the reading of the audio file will begin (in seconds).
 
         duration:
-            Only load up to this much audio (in seconds).
+            Duration of audio to load in (in seconds).
 
     Returns:
-        samples:
-            Audio time series
-
-        sample_rate:
-            Sample rate of the WAV file.
+        Tuple[np.ndarray, int]:
+            Double containing the audio samples and the sample rate in that order.
     """
 
     return librosa.load(file_path, sr=None, offset=offset, duration=duration)

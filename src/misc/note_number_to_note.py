@@ -2,7 +2,7 @@
 note_number_to_note.py
 
 Created on 2021-11-21
-Updated on 2021-11-22
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -31,8 +31,8 @@ def note_number_to_note(note_number: int, key: str = "C"):
             The key that the music is being played in.
 
     Returns:
-        note:
-            Note string.
+        str:
+            String representing the note with the note number.
 
     Todo:
         - Support major and minor keys

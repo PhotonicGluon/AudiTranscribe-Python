@@ -2,7 +2,7 @@
 get_audio_length.py
 
 Created on 2021-11-20
-Updated on 2021-11-20
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -26,7 +26,7 @@ def get_audio_length(samples: np.ndarray, sample_rate: float) -> float:
             The sample rate of the audio file.
 
     Returns:
-        duration:
+        float:
             Duration of the audio file in seconds.
     """
 

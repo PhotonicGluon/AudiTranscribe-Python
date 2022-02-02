@@ -2,7 +2,7 @@
 bpm_estimator.py
 
 Created on 2021-11-15
-Updated on 2021-11-15
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -18,7 +18,7 @@ from librosa.beat import tempo
 # FUNCTIONS
 def estimate_bpm(samples: np.ndarray, sample_rate: int) -> np.ndarray:
     """
-    Estimates the beats per minute (BPM) of a audio piece.
+    Estimates the beats per minute (BPM) of an audio piece.
 
     Args:
         samples:
@@ -28,7 +28,7 @@ def estimate_bpm(samples: np.ndarray, sample_rate: int) -> np.ndarray:
             Sample rate of the audio piece. Can be obtained by using the `wav_to_samples` function.
 
     Returns:
-        bpm:
+        np.ndarray:
             Estimated tempo (beats per minute) of the song. If the song is of uniform tempo then this will be a
             one-element array. Otherwise, the different values present represent the different BPM of the song.
     """

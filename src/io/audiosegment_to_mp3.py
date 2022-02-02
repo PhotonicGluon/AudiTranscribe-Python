@@ -2,7 +2,7 @@
 audiosegment_to_mp3.py
 
 Created on 2021-12-20
-Updated on 2021-12-20
+Updated on 2022-02-02
 
 Copyright © Ryan Kan
 
@@ -24,16 +24,11 @@ def audiosegment_to_mp3(audiosegment: AudioSegment, filename: str, bitrate: int 
 
         filename:
             Filename of the CBR MP3 file.
-            This is JUST THE FILE NAME, without the extension of ".mp3".
+            This is JUST THE FILE NAME, without the extension of the file.
 
         bitrate:
             The bitrate of the CBR encoding.
             The value that is entered here is in THOUSANDS. So a value of 128 means a bitrate of 128,000 (i.e. 128k)
-            (Default = 192)
-
-    Returns:
-        str:
-           Path to the MP3 file.
     """
 
     # Convert the audio segment into a MP3 file
