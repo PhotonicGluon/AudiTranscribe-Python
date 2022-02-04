@@ -2,7 +2,7 @@
 generate_spectrogram_img.py
 
 Created on 2021-11-16
-Updated on 2022-02-02
+Updated on 2022-02-04
 
 Copyright © Ryan Kan
 
@@ -67,6 +67,10 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
     # Assert the batch size is an acceptable value
     assert batch_size <= num_samples, f"Maximum number of samples is {num_samples}, but batch size is {batch_size}."
 
+    # Find the maximum and minimum values of the spectrogram data to use in the colour scale
+    spectrogram_min = np.amin(spectrogram)
+    spectrogram_max = np.amax(spectrogram)
+
     # Calculate the number of batches needed
     num_batches = math.ceil(num_samples / batch_size) - 1  # Minus one because we need to join the last two batches
 
@@ -105,6 +109,8 @@ def generate_spectrogram_img(spectrogram: np.ndarray, frequencies: np.ndarray, t
             z=needed_spectrogram,
             x=needed_time,
             y=frequencies,
+            zmin=spectrogram_min,  # Note to self: `zmin` is lower bound of colour domain
+            zmax=spectrogram_max,  # Note to self: `zmax` is upper bound of colour domain
             colorscale="Viridis"))
 
         fig.update_xaxes(visible=False, showticklabels=False)
