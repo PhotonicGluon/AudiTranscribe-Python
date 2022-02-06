@@ -154,7 +154,8 @@
     {% else %}
         <div class="overlay" id="overlay">
             <div class="progress-area">
-                <span>Processing <code>{{ file_name_proper }}</code></span>
+                <span id="spectrogram-file-name"><b>Processing <code>{{ file_name_proper }}</code></b></span><br>
+                <span id="spectrogram-progress-detail">Starting to process spectrogram.</span>
                 <div id="spectrogram-progress-bar"></div>
             </div>
         </div>

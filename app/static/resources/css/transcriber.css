@@ -264,6 +264,15 @@ hr {
     z-index: 2;
 }
 
+#spectrogram-file-name {
+    text-decoration: underline;
+}
+
 #spectrogram-progress-bar {
     margin-top: 5px;
+}
+
+#spectrogram-progress-detail {
+    display: inline-block;
+    margin-bottom: 5px;
 }

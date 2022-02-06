@@ -2,7 +2,7 @@
 app.py
 
 Created on 2021-11-16
-Updated on 2022-01-24
+Updated on 2022-02-06
 
 Copyright © Ryan Kan
 
@@ -66,7 +66,7 @@ except OSError:
     pass
 
 # GLOBAL VARIABLES
-processingThreads = defaultdict(lambda: {"progress": []})
+processingThreads = defaultdict(lambda: {"phase": 0, "progress": []})
 
 
 # HELPER FUNCTIONS
@@ -74,7 +74,7 @@ def allowed_file(filename: str):
     return "." in filename and filename.rsplit(".", 1)[1].upper() in ACCEPTED_FILE_TYPES
 
 
-def processing_file(file: str, uuid: str, progress: list):
+def processing_file(file: str, uuid: str, thread_data: dict):
     # Generate the folder path and status file path
     folder_path = os.path.join(app.config["UPLOAD_FOLDER"], uuid)
 
@@ -82,9 +82,11 @@ def processing_file(file: str, uuid: str, progress: list):
     filename, extension = os.path.splitext(file)
 
     # Convert the audio file into an `AudioSegment` object
+    thread_data["phase"] = 1  # Converting to audio segment
     audiosegment = audio_to_audiosegment(os.path.join(folder_path, file))
 
     # If the file is not a WAV file then convert it into one
+    thread_data["phase"] = 2  # Generating WAV file
     if extension[1:].upper() != "WAV":
         audiosegment_to_wav(audiosegment, os.path.join(folder_path, filename))
         file_wav = os.path.join(folder_path, filename + ".wav")
@@ -92,6 +94,7 @@ def processing_file(file: str, uuid: str, progress: list):
         file_wav = os.path.join(folder_path, file)
 
     # Convert the audio file into a CBR MP3
+    thread_data["phase"] = 3  # Generating CBR MP3
     audiosegment_to_mp3(audiosegment, os.path.join(folder_path, filename + "_cbr"), bitrate=CBR_MP3_BITRATE)
 
     # Update the status file on the audio file to reference
@@ -101,6 +104,7 @@ def processing_file(file: str, uuid: str, progress: list):
     )
 
     # Now split the WAV file into samples
+    thread_data["phase"] = 4  # Splitting into samples
     samples, sample_rate = wav_to_samples(file_wav)
 
     # We can now delete the old file and the WAV file
@@ -114,16 +118,20 @@ def processing_file(file: str, uuid: str, progress: list):
     duration = get_audio_length(samples, sample_rate)
 
     # Convert the samples into a spectrogram
+    thread_data["phase"] = 5  # Generating VQT data
     spectrogram, frequencies, times = samples_to_vqt(sample_rate, samples)
 
     # Convert the spectrogram data into a spectrogram image
-    image = generate_spectrogram_img(spectrogram, frequencies, times, duration, progress=progress,
+    thread_data["phase"] = 6  # Generating spectrogram image
+    image = generate_spectrogram_img(spectrogram, frequencies, times, duration, progress=thread_data["progress"],
                                      batch_size=BATCH_SIZE, px_per_second=PX_PER_SECOND, img_height=SPECTROGRAM_HEIGHT)
 
     # Save the image
+    thread_data["phase"] = 7  # Saving spectrogram image
     image.save(os.path.join(folder_path, f"{filename}.png"))
 
     # Estimate the BPM of the sample
+    thread_data["phase"] = 8  # Final touches
     bpm = int(estimate_bpm(samples, sample_rate)[0])  # Todo: support dynamic BPM
 
     # Update status file
@@ -134,10 +142,7 @@ def processing_file(file: str, uuid: str, progress: list):
         duration=duration,
         spectrogram_generated=True
     )
-
-    # Delete the progress object, signifying that the spectrogram processes are done
-    del processingThreads[uuid]
-    del progress
+    thread_data["phase"] = 9  # Everything done
 
 
 def update_status_file(status_file: str, **status_updates):
@@ -203,11 +208,27 @@ def download_quicklink(uuid):
 
 @app.route("/api/query-process/<uuid>", methods=["POST"])
 def query_process(uuid):
-    # Get the progress associated with that UUID
-    progress = processingThreads[uuid]["progress"]
+    # Get the thread data associated with that UUID
+    thread_data = processingThreads[uuid]
 
-    # Check if the progress exists
-    if progress:
+    # Get the phase and progress data
+    phase = thread_data["phase"]
+    progress = thread_data["progress"]
+
+    # Handle each phase correctly
+    if phase == 0:  # Uploaded audio file
+        return_data = {"Message": "Starting to process spectrogram."}
+    elif phase == 1:  # Converting to audio segment
+        return_data = {"Message": "Converting to audio segment data."}
+    elif phase == 2:  # Generating WAV file
+        return_data = {"Message": "Generating WAV file."}
+    elif phase == 3:  # Generating CBR MP3
+        return_data = {"Message": "Generating constant bitrate MP3 file."}
+    elif phase == 4:  # Splitting into samples
+        return_data = {"Message": "Splitting audio into smaller samples."}
+    elif phase == 5:  # Generating VQT data
+        return_data = {"Message": "Generating spectrogram data."}
+    elif phase == 6:  # Generating spectrogram image
         # Get the latest value in the progress
         if progress[0] is None:  # Nothing processed yet
             batch_no = 0
@@ -218,10 +239,16 @@ def query_process(uuid):
         # Calculate the progress percentage
         progress_percentage = int(batch_no / num_batches * 100)  # As a number in the interval [0, 100]
 
-        # Return the progress values
-        return json.dumps({"Progress": progress_percentage})
-    else:  # The progress has been used and completed
-        return json.dumps({"Progress": 100})
+        # Generate the return data
+        return_data = {"Message": "Generating spectrogram image.", "Progress": progress_percentage}
+    elif phase == 7:  # Saving spectrogram image
+        return_data = {"Message": "Saving spectrogram image."}
+    elif phase == 8:  # Final touches
+        return_data = {"Message": "Performing final touches."}
+    else:  # Phase 9; updated status file
+        return_data = {"Message": "Updated status file. Redirecting in a short while...", "Progress": 100}
+
+    return json.dumps(return_data)
 
 
 @app.route("/api/save-project/<uuid>", methods=["POST"])
@@ -373,7 +400,7 @@ def transcriber(uuid):
 
         # Start a multiprocessing thread and save it to the master dictionary
         thread = threading.Thread(target=processing_file,
-                                  args=(status["original_file_name"], uuid, processingThreads[uuid]["progress"]))
+                                  args=(status["original_file_name"], uuid, processingThreads[uuid]))
         thread.start()
         processingThreads[uuid]["thread"] = thread
 
@@ -390,6 +417,10 @@ def transcriber(uuid):
                                    file_name=status["audio_file_name"],
                                    file_name_proper=re.sub(r"_cbr(?!.*_cbr)+", "", status["audio_file_name"]))
         else:
+            # Try and delete the process thread
+            if processingThreads[uuid]:
+                del processingThreads[uuid]
+
             # Render the template with the variables
             return render_template("transcriber.html", spectrogram_generated=True, uuid=uuid,
                                    file_name=status["audio_file_name"],

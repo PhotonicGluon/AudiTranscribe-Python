@@ -1,8 +1,9 @@
 // CONSTANTS
-const CHECK_STATUS_INTERVAL = 2;  // In seconds
+const CHECK_STATUS_INTERVAL = 1;  // In seconds
 
 // GET ELEMENTS
 let spectrogramProgressBar = $("#spectrogram-progress-bar");
+let spectrogramProgressDetail = $("#spectrogram-progress-detail");
 
 // MAIN FUNCTIONS
 // Called when the document has been loaded
@@ -22,19 +23,25 @@ $(document).ready(() => {
             // Parse the data
             data = JSON.parse(data);
 
-            // The data returned is an integer representing the progress percentage
+            // Separate the data into the phase number, message, and progress
+            let message = data["Message"];
             let progress = data["Progress"];
 
-            // Update progress bar
-            spectrogramProgressBar.progressbar("option", "value", data["Progress"]);
+            // Update message span
+            spectrogramProgressDetail.text(message);
 
-            // Check if progress is 100%
-            if (progress === 100) {
-                // Stop the interval
-                clearInterval(spectrogramProgressInterval);
+            // Carefully update progress bar
+            if (progress !== undefined) {
+                spectrogramProgressBar.progressbar("option", "value", progress);
 
-                // Reload the page
-                location.reload();
+                // Check if progress is 100%
+                if (progress === 100) {
+                    // Stop the interval
+                    clearInterval(spectrogramProgressInterval);
+
+                    // Reload the page
+                    location.reload();
+                }
             }
         });
     }, CHECK_STATUS_INTERVAL * 1000);  // Convert seconds to milliseconds
